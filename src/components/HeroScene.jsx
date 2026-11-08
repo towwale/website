@@ -307,8 +307,11 @@ function Rig() {
     const ie = 1 - Math.pow(1 - intro, 4)
     const p = heroState.progress
     const pe = p * p * (3 - 2 * p)
-    const portrait = size.width / size.height < 1
-    const d = portrait ? 1.8 : 1.28
+    const aspect = size.width / size.height
+    const portrait = aspect < 1
+    // Wide, short screens (16:9 laptops) get a slightly further camera and the truck pushed right.
+    const wide = Math.min(Math.max((aspect - 1.45) / 0.45, 0), 1)
+    const d = portrait ? 1.8 : 1.28 + wide * 0.32
 
     // Shot A: low 3/4 front. Shot B: side tracking shot, closer.
     const ax = 7.4 * d, ay = 1.7 + (portrait ? 1.4 : 0), az = 8.4 * d
@@ -325,7 +328,7 @@ function Rig() {
     target.set(x, y, z)
     camera.position.lerp(target, 1 - Math.exp(-dt * 5))
     // Frame the truck to the right of the headline on desktop, above it on phones.
-    const la = portrait ? [0.3, -1.7, 0] : [-2.3, 0.9, 2.1]
+    const la = portrait ? [0.3, -1.7, 0] : [-2.7 - wide * 1.2, 0.9 + wide * 0.2, 2.1]
     const lb = portrait ? [0, -1.1, 0] : [-0.9, 1.0, -0.3]
     look.set(lerp(la[0], lb[0], pe), lerp(la[1], lb[1], pe), lerp(la[2], lb[2], pe))
     camera.lookAt(look)

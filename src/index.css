@@ -233,12 +233,12 @@ em { font-family: var(--serif); font-style: italic; font-weight: 400; letter-spa
   backdrop-filter: blur(10px); font-size: 13.5px; font-weight: 500;
 }
 .hero__title {
-  font-size: clamp(56px, 10.5vw, 188px); font-weight: 600; line-height: 0.86; letter-spacing: -0.055em;
+  font-size: clamp(56px, min(10.5vw, 16.5vh), 188px); font-weight: 600; line-height: 0.86; letter-spacing: -0.055em;
 }
 .hero__title .line { display: block; overflow: hidden; padding-bottom: 0.06em; margin-bottom: -0.06em; }
 .hero__title .line > span { display: inline-block; }
 .hero__title em { color: var(--amber); padding-right: 0.05em; }
-.hero__row { display: flex; align-items: flex-end; justify-content: space-between; gap: 40px; flex-wrap: wrap; }
+.hero__row { display: flex; flex-direction: column; align-items: flex-start; gap: 28px; }
 .hero__lead { max-width: 30em; font-size: clamp(16px, 1.3vw, 19px); color: var(--text-dim); }
 .hero__ctas { display: flex; gap: 12px; flex-wrap: wrap; }
 
@@ -493,7 +493,7 @@ em { font-family: var(--serif); font-style: italic; font-weight: 400; letter-spa
 .hero__tags { display: flex; align-items: center; gap: 18px; flex-wrap: wrap; }
 .hero__hindi { font-family: 'Mukta', var(--sans); font-weight: 500; font-size: 17px; color: var(--amber-2); letter-spacing: 0; }
 .hero__side {
-  position: absolute; left: 0; right: 0; top: clamp(88px, 11vh, 120px);
+  position: absolute; left: 0; right: 0; bottom: clamp(36px, 7vh, 80px);
   display: flex; justify-content: flex-end; pointer-events: none;
 }
 .dispatch {
@@ -535,7 +535,7 @@ em { font-family: var(--serif); font-style: italic; font-weight: 400; letter-spa
   .promises__item:nth-child(3) { border-left: 0; padding-left: 0; }
   .promises__item:nth-child(n+3) { border-top: 1px solid var(--line-dark); }
 }
-@media (max-width: 1180px) { .hero__side { display: none; } }
+@media (max-width: 1180px), (max-height: 640px) { .hero__side { display: none; } }
 @media (max-width: 600px) {
   .promises__grid { grid-template-columns: 1fr; }
   .promises__item { border-left: 0; padding-left: 0; padding-right: 0; }
