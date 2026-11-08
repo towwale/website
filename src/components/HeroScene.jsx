@@ -107,7 +107,7 @@ function useBrand() {
       g.strokeStyle = '#111'; g.lineWidth = 6; g.beginPath(); g.roundRect(6, 6, w - 12, h - 12, 10); g.stroke()
       g.fillStyle = '#111'; g.textAlign = 'center'; g.textBaseline = 'middle'
       g.font = '700 70px "Inter Tight", Arial, sans-serif'
-      g.fillText('MH 02 TW 2481', w / 2, h / 2 + 3)
+      g.fillText('KA 01 TW 2481', w / 2, h / 2 + 3)
     }),
     // Red and white rear chevrons.
     chevron: canvasTexture(512, 64, (g, w, h) => {

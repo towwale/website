@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react'
 import gsap from 'gsap'
 
-const text = 'One call. One fixed price. A verified driver who keeps you posted until you are moving again, whether you are on the Bandra–Worli Sea Link at midnight or a ghat road with no signal.'
+const text = 'One call. One fixed price. A verified driver who keeps you posted until you are moving again, whether you are at Silk Board junction at midnight or on a ghat road with no signal.'
 
 export default function Statement() {
   const root = useRef()

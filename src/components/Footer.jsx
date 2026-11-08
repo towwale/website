@@ -37,7 +37,6 @@ export default function Footer() {
             <h3>Contact</h3>
             <ul>
               <li><a href={`mailto:${business.email}`}>{business.email}</a></li>
-              <li>{business.address}</li>
             </ul>
           </div>
         </div>

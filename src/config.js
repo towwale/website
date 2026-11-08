@@ -7,7 +7,6 @@ export const business = {
   phoneDisplay: '+91 98765 43210', // shown on the page
   whatsapp: '919876543210',        // country code + number, no "+"
   email: 'help@towwala.in',
-  address: 'Andheri East, Mumbai, Maharashtra 400069',
 }
 
 export const services = [
@@ -43,7 +42,7 @@ export const stats = [
 ]
 
 export const cities = [
-  'Mumbai', 'Delhi NCR', 'Bengaluru', 'Pune', 'Hyderabad', 'Chennai',
+  'Bengaluru', 'Mumbai', 'Delhi NCR', 'Pune', 'Hyderabad', 'Chennai',
   'Ahmedabad', 'Kolkata', 'Jaipur', 'Lucknow', 'Chandigarh', 'Indore',
   'Mumbai–Pune Expressway', 'NH-48', 'Yamuna Expressway',
 ]

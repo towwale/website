@@ -17,7 +17,7 @@ export default function DispatchCard() {
   return (
     <aside className="dispatch hero__fade" aria-label="Example of live job tracking">
       <div className="dispatch__top">
-        <span className="dispatch__id">JOB #TW-2481 · Andheri E</span>
+        <span className="dispatch__id">JOB #TW-2481</span>
         <span className="dispatch__status"><span className="live-dot" /> {stages[stage]}</span>
       </div>
       <svg className="dispatch__map" viewBox="0 0 280 44" aria-hidden="true">
