@@ -1,8 +1,8 @@
 import { useMemo, useRef } from 'react'
 import * as THREE from 'three'
 import { Canvas, useFrame, useThree } from '@react-three/fiber'
-import { Environment, Lightformer, MeshReflectorMaterial, RoundedBox } from '@react-three/drei'
-import { EffectComposer, Bloom, Vignette } from '@react-three/postprocessing'
+import { ContactShadows, Environment, Lightformer, MeshReflectorMaterial, RoundedBox } from '@react-three/drei'
+import { EffectComposer, Bloom, N8AO, Vignette } from '@react-three/postprocessing'
 import { heroState, reducedMotion } from '../lib/scroll.js'
 import { business } from '../config.js'
 
@@ -11,17 +11,37 @@ const SPEED = reducedMotion ? 0 : 9 // road units per second
 const lerp = (a, b, t) => a + (b - a) * t
 
 /* ---------- materials ---------- */
+// Bump map for tyre tread. The lathe's UVs run around the tyre (u) and across its profile (v);
+// only the middle band (the contact face) gets grooves, the sidewalls stay flat.
+function treadTexture() {
+  const c = document.createElement('canvas')
+  c.width = 1024; c.height = 64
+  const g = c.getContext('2d')
+  g.fillStyle = '#808080'; g.fillRect(0, 0, 1024, 64)
+  g.fillStyle = '#ffffff'; g.fillRect(0, 26, 1024, 12)
+  g.fillStyle = '#000000'
+  for (let x = 0; x < 1024; x += 16) {
+    g.fillRect(x, 26, 4, 5)
+    g.fillRect(x + 8, 33, 4, 5)
+  }
+  g.fillRect(0, 31, 1024, 2)
+  const t = new THREE.CanvasTexture(c)
+  t.wrapS = THREE.RepeatWrapping
+  return t
+}
+
 function useMaterials() {
   return useMemo(() => ({
     paint: new THREE.MeshPhysicalMaterial({ color: '#ffb000', metalness: 0.25, roughness: 0.22, clearcoat: 1, clearcoatRoughness: 0.04 }),
     carPaint: new THREE.MeshPhysicalMaterial({ color: '#7a0a16', metalness: 0.7, roughness: 0.22, clearcoat: 1, clearcoatRoughness: 0.03 }),
     gloss: new THREE.MeshPhysicalMaterial({ color: '#0c0d10', metalness: 0.3, roughness: 0.32, clearcoat: 1, clearcoatRoughness: 0.1 }),
-    glass: new THREE.MeshPhysicalMaterial({ color: '#0a0f15', metalness: 0.4, roughness: 0.04, clearcoat: 1, side: THREE.DoubleSide }),
+    glass: new THREE.MeshPhysicalMaterial({ color: '#0d141c', metalness: 0.15, roughness: 0.02, clearcoat: 1, clearcoatRoughness: 0, reflectivity: 0.9, envMapIntensity: 2.2, side: THREE.DoubleSide }),
     dark: new THREE.MeshStandardMaterial({ color: '#15181d', metalness: 0.5, roughness: 0.6 }),
     deck: new THREE.MeshStandardMaterial({ color: '#4a5059', metalness: 0.9, roughness: 0.42 }),
     rim: new THREE.MeshStandardMaterial({ color: '#2e333b', metalness: 0.9, roughness: 0.28 }),
     chrome: new THREE.MeshStandardMaterial({ color: '#e6e9ee', metalness: 1, roughness: 0.1 }),
-    tyre: new THREE.MeshStandardMaterial({ color: '#0b0c0e', roughness: 0.9, side: THREE.DoubleSide }),
+    tyre: new THREE.MeshStandardMaterial({ color: '#121315', roughness: 0.88, bumpMap: treadTexture(), bumpScale: 2.5, side: THREE.DoubleSide }),
+    hole: new THREE.MeshStandardMaterial({ color: '#07080a', roughness: 0.9 }),
     head: new THREE.MeshStandardMaterial({ color: '#ffffff', emissive: '#fff4dc', emissiveIntensity: 9, toneMapped: false }),
     tail: new THREE.MeshStandardMaterial({ color: '#ff2a1f', emissive: '#ff1a10', emissiveIntensity: 6, toneMapped: false }),
     beacon: new THREE.MeshStandardMaterial({ color: '#ff9a00', emissive: '#ff8200', emissiveIntensity: 10, toneMapped: false }),
@@ -91,6 +111,14 @@ function useBrand() {
       g.font = '800 70px "Inter Tight", Arial, sans-serif'
       g.fillText('Towwala', 112, h / 2 + 3)
     }),
+    // Indian-style number plate.
+    plate: canvasTexture(512, 112, (g, w, h) => {
+      g.fillStyle = '#f7f7f2'; g.beginPath(); g.roundRect(0, 0, w, h, 12); g.fill()
+      g.strokeStyle = '#111'; g.lineWidth = 6; g.beginPath(); g.roundRect(6, 6, w - 12, h - 12, 10); g.stroke()
+      g.fillStyle = '#111'; g.textAlign = 'center'; g.textBaseline = 'middle'
+      g.font = '700 70px "Inter Tight", Arial, sans-serif'
+      g.fillText('MH 02 TW 2481', w / 2, h / 2 + 3)
+    }),
     // Red and white rear chevrons.
     chevron: canvasTexture(512, 64, (g, w, h) => {
       g.fillStyle = '#f2f0ea'; g.fillRect(0, 0, w, h)
@@ -146,14 +174,34 @@ function Wheel({ position, r = 0.46, w = 0.36, m, spin = true }) {
     <group position={position} ref={ref}>
       <mesh geometry={tyre} rotation-x={Math.PI / 2} material={m.tyre} castShadow />
       <mesh rotation-x={Math.PI / 2} material={m.rim}><cylinderGeometry args={[r * 0.66, r * 0.66, w * 0.8, 36]} /></mesh>
-      {/* six-spoke alloy face on the outside */}
-      <group position-z={outer * w * 0.41}>
-        {[0, 1, 2].map((i) => (
-          <mesh key={i} rotation-z={(i * Math.PI) / 3} material={m.chrome}><boxGeometry args={[r * 0.12, r * 1.2, 0.03]} /></mesh>
-        ))}
-        <mesh rotation-x={Math.PI / 2} material={m.chrome}><cylinderGeometry args={[r * 0.17, r * 0.17, 0.05, 24]} /></mesh>
-        <mesh rotation-x={Math.PI / 2} material={m.rim}><torusGeometry args={[r * 0.6, r * 0.05, 8, 40]} /></mesh>
-      </group>
+      {r > 0.4 ? (
+        // Polished truck disc: hand holes, hub and eight lug nuts.
+        <group position-z={outer * w * 0.41}>
+          <mesh rotation-x={Math.PI / 2} material={m.chrome}><cylinderGeometry args={[r * 0.62, r * 0.6, 0.03, 40]} /></mesh>
+          {Array.from({ length: 6 }, (_, i) => (
+            <mesh key={i} position={[Math.cos((i * Math.PI) / 3) * r * 0.43, Math.sin((i * Math.PI) / 3) * r * 0.43, outer * 0.012]} rotation-x={Math.PI / 2} material={m.hole}>
+              <cylinderGeometry args={[r * 0.08, r * 0.08, 0.012, 16]} />
+            </mesh>
+          ))}
+          <mesh position-z={outer * 0.03} rotation-x={Math.PI / 2} material={m.rim}><cylinderGeometry args={[r * 0.22, r * 0.24, 0.05, 28]} /></mesh>
+          {Array.from({ length: 8 }, (_, i) => (
+            <mesh key={i} position={[Math.cos((i * Math.PI) / 4) * r * 0.27, Math.sin((i * Math.PI) / 4) * r * 0.27, outer * 0.04]} rotation-x={Math.PI / 2} material={m.chrome}>
+              <cylinderGeometry args={[0.022, 0.022, 0.04, 6]} />
+            </mesh>
+          ))}
+          <mesh position-z={outer * 0.07} rotation-x={Math.PI / 2} material={m.chrome}><cylinderGeometry args={[r * 0.1, r * 0.14, 0.06, 24]} /></mesh>
+          <mesh rotation-x={Math.PI / 2} material={m.chrome}><torusGeometry args={[r * 0.64, r * 0.03, 8, 48]} /></mesh>
+        </group>
+      ) : (
+        // Six-spoke alloy for the car.
+        <group position-z={outer * w * 0.41}>
+          {[0, 1, 2].map((i) => (
+            <mesh key={i} rotation-z={(i * Math.PI) / 3} material={m.chrome}><boxGeometry args={[r * 0.12, r * 1.2, 0.03]} /></mesh>
+          ))}
+          <mesh rotation-x={Math.PI / 2} material={m.chrome}><cylinderGeometry args={[r * 0.17, r * 0.17, 0.05, 24]} /></mesh>
+          <mesh rotation-x={Math.PI / 2} material={m.rim}><torusGeometry args={[r * 0.6, r * 0.05, 8, 40]} /></mesh>
+        </group>
+      )}
     </group>
   )
 }
@@ -349,7 +397,46 @@ function Truck({ day }) {
           <mesh key={y} position={[3.84, y, 0]} material={m.chrome}><boxGeometry args={[0.012, 0.02, 0.96]} /></mesh>
         ))}
         <RoundedBox args={[0.02, 0.06, 0.3]} radius={0.01} position={[3.82, 1.44, 0]} material={m.gloss} />
-        <mesh position={[3.4, 1.552, 0]} rotation-z={-0.2} material={m.gloss}><boxGeometry args={[0.5, 0.01, 1.2]} /></mesh>
+        <mesh position={[2.875, 1.63, 0]} material={m.gloss}><boxGeometry args={[0.02, 0.012, 1.62]} /></mesh>
+        <RoundedBox args={[0.08, 0.05, 0.16]} radius={0.015} position={[3.7, 1.5, 0]} material={m.chrome} />
+        {/* wipers resting at the bottom of the windscreen */}
+        <group position={[2.778, 1.987, 0]} rotation-z={0.322}>
+          {[0.42, -0.42].map((z) => (
+            <group key={z} position={[0, -0.27, z]} rotation-x={0.1}>
+              <mesh material={m.gloss}><boxGeometry args={[0.012, 0.016, 0.62]} /></mesh>
+              <mesh position={[0.008, 0, 0]} material={m.dark}><boxGeometry args={[0.008, 0.01, 0.6]} /></mesh>
+            </group>
+          ))}
+        </group>
+        {/* roof: air horns, antenna; rear cab window */}
+        {[0.86, -0.86].map((z) => (
+          <group key={z} position={[2.32, 2.53, z]} rotation-z={-Math.PI / 2}>
+            <mesh material={m.chrome}><cylinderGeometry args={[0.028, 0.05, 0.36, 20]} /></mesh>
+          </group>
+        ))}
+        <mesh position={[1.82, 2.78, -0.92]} material={m.gloss}><cylinderGeometry args={[0.006, 0.01, 0.7, 8]} /></mesh>
+        <mesh position={[1.605, 2.0, 0]} material={m.glass}><boxGeometry args={[0.01, 0.3, 1.0]} /></mesh>
+        {/* number plates */}
+        <mesh position={[4.044, 0.84, 0]} rotation-y={Math.PI / 2}>
+          <planeGeometry args={[0.5, 0.11]} />
+          {decal(brand.plate, { transparent: true })}
+        </mesh>
+        <mesh position={[-3.228, 0.86, 0]} rotation-y={-Math.PI / 2}>
+          <planeGeometry args={[0.5, 0.11]} />
+          {decal(brand.plate, { transparent: true })}
+        </mesh>
+        {/* axles, differentials and leaf springs, visible from the low camera */}
+        {[3.15, -1.2, -2.28].map((x) => (
+          <group key={x}>
+            <mesh position={[x, 0.46, 0]} rotation-x={Math.PI / 2} material={m.dark}><cylinderGeometry args={[0.06, 0.06, 1.5, 12]} /></mesh>
+            {x < 0 && <mesh position={[x, 0.46, 0]} material={m.dark}><sphereGeometry args={[0.18, 20, 14]} /></mesh>}
+          </group>
+        ))}
+        {[0.56, -0.56].map((z) => [0, 1, 2].map((i) => (
+          <mesh key={`${z}${i}`} position={[-1.74, 0.6 - i * 0.035, z]} material={m.dark}><boxGeometry args={[1.7 - i * 0.35, 0.03, 0.08]} /></mesh>
+        )))}
+        {/* winch cable to the car */}
+        <mesh position={[1.01, 1.385, 0]} rotation-z={1.193} material={m.gloss}><cylinderGeometry args={[0.012, 0.012, 0.64, 6]} /></mesh>
 
         {sides.map((s) => (
           <group key={s}>
@@ -369,6 +456,10 @@ function Truck({ day }) {
             <mesh position={[2.79, 1.6, s * 1.2]} material={m.gloss}><boxGeometry args={[0.04, 0.04, 0.32]} /></mesh>
             <RoundedBox args={[0.1, 0.5, 0.14]} radius={0.04} position={[2.76, 1.8, s * 1.36]} material={m.gloss} castShadow />
             <RoundedBox args={[0.012, 0.42, 0.1]} radius={0.004} position={[2.82, 1.8, s * 1.36]} material={m.glass} />
+            {/* grab handle and side marker lamps */}
+            <mesh position={[1.72, 1.5, s * 1.07]} material={m.chrome}><cylinderGeometry args={[0.014, 0.014, 0.55, 10]} /></mesh>
+            <RoundedBox args={[0.1, 0.045, 0.012]} radius={0.006} position={[3.58, 1.04, s * 1.113]} material={m.marker} />
+            <RoundedBox args={[0.08, 0.04, 0.012]} radius={0.006} position={[2.7, 0.9, s * 1.058]} material={m.marker} />
             {/* fuel tank and step under the door */}
             <mesh position={[2.1, 0.56, s * 0.86]} rotation-z={Math.PI / 2} material={m.chrome} castShadow><cylinderGeometry args={[0.2, 0.2, 0.72, 28]} /></mesh>
             <RoundedBox args={[0.42, 0.05, 0.22]} radius={0.015} position={[2.32, 0.82, s * 1.04]} material={m.gloss} />
@@ -536,6 +627,7 @@ function Rig() {
   const target = useMemo(() => new THREE.Vector3(), [])
   const start = useRef(null)
   const shift = useRef(0)
+  const zoom = useRef(1) // >1 pulls the camera back when the truck can't clear the headline
   const v = useMemo(() => new THREE.Vector3(), [])
   // Corners of a box around the truck and its load.
   const corners = useMemo(() => {
@@ -554,7 +646,7 @@ function Rig() {
     const portrait = aspect < 1
     // Wide, short screens (16:9 laptops) get a slightly further camera and the truck pushed right.
     const wide = Math.min(Math.max((aspect - 1.45) / 0.45, 0), 1)
-    const d = portrait ? 1.9 : 1.9 + wide * 0.15
+    const d = (portrait ? 1.9 : 1.9 + wide * 0.15) * zoom.current
 
     // Shot A: low 3/4 front. Shot B: side tracking shot, closer.
     const ax = 7.4 * d, ay = 1.7 + (portrait ? 1.4 : 0), az = 8.4 * d
@@ -589,7 +681,11 @@ function Rig() {
       const left = ((minX + 1) / 2) * size.width
       const right = ((maxX + 1) / 2) * size.width
       const room = Math.max(0, size.width - 24 - right)
-      want = Math.min(Math.max(0, heroState.textRight + 28 - left), room) * (1 - pe)
+      const need = Math.max(0, heroState.textRight + 28 - left)
+      want = Math.min(need, room) * (1 - pe)
+      // Not enough room to slide clear: step the camera back a little; plenty of room: ease back in.
+      if (need > room + 2 && pe < 0.5) zoom.current = Math.min(1.45, zoom.current + dt * 0.5)
+      else if (need < room - 90) zoom.current = Math.max(1, zoom.current - dt * 0.25)
     }
     shift.current += (want - shift.current) * (1 - Math.exp(-dt * 4))
     if (Math.abs(shift.current) > 0.5) camera.setViewOffset(size.width, size.height, -shift.current, 0, size.width, size.height)
@@ -637,15 +733,25 @@ export default function HeroScene({ active = true, day = false }) {
       </Environment>
 
       <Truck day={day} />
+      <ContactShadows position={[0.2, 0.012, 0]} scale={[12, 4.5]} far={2.4} blur={2.2} opacity={day ? 0.55 : 0.8} resolution={512} color="#000000" />
       <Road hq={hq} day={day} />
       <Streetlights day={day} />
       <Barrier day={day} />
       <Rig />
 
-      <EffectComposer multisampling={hq ? 4 : 0} disableNormalPass>
-        <Bloom mipmapBlur luminanceThreshold={1} luminanceSmoothing={0.2} intensity={day ? 0.5 : 1.15} radius={0.75} />
-        <Vignette offset={0.25} darkness={day ? 0.22 : 0.75} />
-      </EffectComposer>
+      {hq ? (
+        // Desktop: ambient occlusion grounds the truck and darkens wheel wells and seams.
+        <EffectComposer multisampling={4} disableNormalPass>
+          <N8AO halfRes aoRadius={1.1} distanceFalloff={0.8} intensity={day ? 2.4 : 1.6} quality="performance" />
+          <Bloom mipmapBlur luminanceThreshold={1} luminanceSmoothing={0.2} intensity={day ? 0.5 : 1.15} radius={0.75} />
+          <Vignette offset={0.25} darkness={day ? 0.22 : 0.75} />
+        </EffectComposer>
+      ) : (
+        <EffectComposer multisampling={0} disableNormalPass>
+          <Bloom mipmapBlur luminanceThreshold={1} luminanceSmoothing={0.2} intensity={day ? 0.5 : 1.15} radius={0.75} />
+          <Vignette offset={0.25} darkness={day ? 0.22 : 0.75} />
+        </EffectComposer>
+      )}
     </Canvas>
   )
 }

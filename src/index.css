@@ -245,11 +245,11 @@ em { font-family: var(--serif); font-style: italic; font-weight: 400; letter-spa
 .hero__title:not([data-lang="en"]) { line-height: 1.22; letter-spacing: 0; }
 .hero__title:not([data-lang="en"]) .line { padding-bottom: .12em; margin-bottom: -.12em; }
 .hero__title:not([data-lang="en"]) em { font-family: inherit; font-style: normal; font-weight: 600; letter-spacing: 0; }
-.hero__title[data-lang="en"] { --hs: .78; }
-.hero__title[data-lang="hi"] { --hs: .67; }
-.hero__title[data-lang="kn"] { --hs: .66; }
-.hero__title[data-lang="ta"] { --hs: .38; }
-.hero__title[data-lang="te"] { --hs: .575; }
+.hero__title[data-lang="en"] { --hs: .72; }
+.hero__title[data-lang="hi"] { --hs: .58; }
+.hero__title[data-lang="kn"] { --hs: .6; }
+.hero__title[data-lang="ta"] { --hs: .35; }
+.hero__title[data-lang="te"] { --hs: .53; }
 
 .hero__langs {
   justify-self: start; display: flex; flex-wrap: wrap; gap: 2px; padding: 4px; border-radius: 999px;

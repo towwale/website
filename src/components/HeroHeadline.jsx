@@ -60,7 +60,8 @@ export default function HeroHeadline({ ready, active }) {
   // Cycle on its own until the visitor picks a language.
   useEffect(() => {
     if (!ready || !active || !auto || reducedMotion) return
-    const id = setInterval(() => go((current.current + 1) % HEADLINES.length), INTERVAL * 1000)
+    // Skip ticks while the tab is in the background, so changes don't pile up.
+    const id = setInterval(() => { if (!document.hidden) go((current.current + 1) % HEADLINES.length) }, INTERVAL * 1000)
     return () => clearInterval(id)
   }, [ready, active, auto, go])
 
