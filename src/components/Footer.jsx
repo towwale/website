@@ -40,10 +40,6 @@ export default function Footer() {
               <li>{business.address}</li>
             </ul>
           </div>
-          <div>
-            <h3>Payments</h3>
-            <ul><li>UPI · Cards · Cash</li><li>GST invoices for insurance</li></ul>
-          </div>
         </div>
       </div>
 

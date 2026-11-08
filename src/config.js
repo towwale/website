@@ -32,14 +32,14 @@ export const steps = [
   { time: '01', title: 'You call', text: 'A real person picks up, not an IVR menu. Share your location on WhatsApp in one tap.' },
   { time: '02', title: 'Fixed quote', text: 'You hear the full price before anything moves. That is the price you pay. No surprises on arrival.' },
   { time: '03', title: 'Truck dispatched', text: 'The nearest available verified truck is assigned. You get the driver’s name, photo and a live tracking link.' },
-  { time: '04', title: 'We’re with you', text: 'Your vehicle is loaded safely and driven to the garage of your choice. Pay by UPI once it’s dropped.' },
+  { time: '04', title: 'We’re with you', text: 'Your vehicle is loaded safely and driven to the garage of your choice.' },
 ]
 
 export const stats = [
   { value: 24, suffix: '/7', label: 'Always on, including Diwali night' },
   { value: 8, suffix: ' services', label: 'From a jumpstart to crane recovery' },
   { value: 15, suffix: '+', label: 'Cities and expressways covered' },
-  { value: 0, prefix: '₹', label: 'Charged before the job is done' },
+  { value: 1, suffix: ' call', label: 'Is all it takes to get help' },
 ]
 
 export const cities = [
@@ -61,7 +61,6 @@ export const faqs = [
   { q: 'How is the towing charge calculated?', a: 'A fixed base fare covers the first 10 km, then a per-km rate. You get the full price on the phone before we send a truck.' },
   { q: 'Is my car safe during towing?', a: 'We use flatbeds for automatic, EV and luxury cars, soft straps and wheel locks, and every trip is tracked.' },
   { q: 'Can you work with my insurance?', a: 'Yes. We provide GST invoices and photos for insurance claims, and can tow directly to your insurer’s network garage.' },
-  { q: 'What payment methods do you accept?', a: 'UPI (GPay, PhonePe, Paytm), debit/credit cards and cash. You pay only after the service is done.' },
 ]
 
 export const vehicleTypes = ['Car (Hatchback/Sedan)', 'SUV / MUV', 'Luxury / EV', 'Two-wheeler', 'Commercial vehicle']

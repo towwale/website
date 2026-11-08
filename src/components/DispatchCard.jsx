@@ -37,7 +37,7 @@ export default function DispatchCard() {
       <div className="dispatch__stats">
         <div><span>Tracking</span><strong>Live</strong></div>
         <div><span>Fixed price</span><strong>₹1,499</strong></div>
-        <div><span>Pay</span><strong>After, UPI</strong></div>
+        <div><span>Driver</span><strong>Verified</strong></div>
       </div>
     </aside>
   )

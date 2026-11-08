@@ -14,7 +14,7 @@ export default function Booking() {
           <ul className="booking-sec__list" data-reveal>
             <li><Icon name="check" size={18} /> Fixed price confirmed before dispatch</li>
             <li><Icon name="check" size={18} /> Driver details and live tracking on WhatsApp</li>
-            <li><Icon name="check" size={18} /> UPI, card or cash, after service</li>
+            <li><Icon name="check" size={18} /> Drop at any garage you choose</li>
           </ul>
           <a href={`tel:${business.phone}`} className="booking-sec__call" data-reveal>
             <small>Prefer to talk?</small>

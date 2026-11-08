@@ -4,7 +4,7 @@ const promises = [
   { icon: 'phone', title: 'A person answers', text: 'Day or night, in Hindi, English or your language. No IVR menus.' },
   { icon: 'rupee', title: 'Price before we move', text: 'You hear the full fare on the call. That is what you pay.' },
   { icon: 'shield', title: 'Insured transport', text: 'Your vehicle is covered for the whole time it is on our truck.' },
-  { icon: 'check', title: 'Pay after the job', text: 'UPI, card or cash, only once your vehicle is dropped safely.' },
+  { icon: 'check', title: 'Handled with care', text: 'Trained crews, soft straps and flatbeds for EVs and luxury cars.' },
 ]
 
 export default function Promises() {

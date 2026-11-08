@@ -548,7 +548,7 @@ em { font-family: var(--serif); font-style: italic; font-weight: 400; letter-spa
   transition: color .4s;
 }
 .footer__phone:hover { color: var(--amber); }
-.footer__grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 32px; padding: 56px 0; }
+.footer__grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 32px; padding: 56px 0; }
 .footer h3 { font-size: 13px; font-weight: 600; letter-spacing: .14em; text-transform: uppercase; color: var(--text-dim); margin-bottom: 18px; }
 .footer ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; font-size: 15.5px; }
 .footer ul a { transition: color .3s; }

@@ -73,8 +73,8 @@ export default function Hero({ ready }) {
           <HeroHeadline ready={ready} active={active} />
           <div className="hero__row">
             <p className="hero__fade hero__lead">
-              24x7 towing and roadside rescue across India. A fixed price before we move,
-              a verified driver with live tracking, and you pay only when the job is done.
+              24x7 towing and roadside rescue across India. A fixed price before we move
+              and a verified driver with live tracking.
             </p>
             <div className="hero__fade hero__ctas">
               <Magnetic>
