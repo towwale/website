@@ -168,7 +168,7 @@ function Beacon({ m }) {
     light.current.intensity = on * 14
   })
   return (
-    <group position={[2.62, 2.5, 0]}>
+    <group position={[2.04, 2.52, 0]}>
       <RoundedBox args={[0.3, 0.07, 1.56]} radius={0.03} material={m.gloss} />
       {[-0.56, -0.28, 0, 0.28, 0.56].map((z) => (
         <RoundedBox key={z} args={[0.22, 0.09, 0.22]} radius={0.035} position={[0, 0.07, z]} material={m.beacon} />
@@ -187,19 +187,17 @@ function Headlights({ m, day }) {
     <group>
       <primitive object={target} />
       {sides.map((s) => (
-        <group key={s} position={[3.44, 1.47, s * 0.74]}>
-          <RoundedBox args={[0.03, 0.16, 0.5]} radius={0.012} material={m.glass} />
-          <mesh position={[0.018, 0.05, -s * 0.02]} material={m.head}><boxGeometry args={[0.01, 0.026, 0.42]} /></mesh>
-          <mesh position={[0.018, 0.0, s * 0.2]} material={m.head}><boxGeometry args={[0.01, 0.12, 0.026]} /></mesh>
-          {[-0.14, 0.02].map((z) => (
-            <mesh key={z} position={[0.016, -0.03, s * z]} rotation-z={Math.PI / 2} material={m.head}><cylinderGeometry args={[0.032, 0.032, 0.012, 20]} /></mesh>
-          ))}
-          <mesh material={beam} position={[3.2, -0.6, 0]} rotation-z={Math.PI / 2 + 0.16}>
+        <group key={s} position={[3.81, 1.08, s * 0.9]}>
+          <RoundedBox args={[0.04, 0.15, 0.24]} radius={0.02} material={m.glass} />
+          <mesh position={[0.022, 0.01, -s * 0.03]} material={m.head}><boxGeometry args={[0.01, 0.08, 0.14]} /></mesh>
+          <mesh position={[0.022, -0.055, -s * 0.03]} material={m.head}><boxGeometry args={[0.01, 0.018, 0.16]} /></mesh>
+          <RoundedBox args={[0.04, 0.1, 0.06]} radius={0.015} position={[0.004, 0, s * 0.1]} material={m.marker} />
+          <mesh material={beam} position={[3.2, -0.3, 0]} rotation-z={Math.PI / 2 + 0.1}>
             <coneGeometry args={[1.1, 6.4, 32, 1, true]} />
           </mesh>
         </group>
       ))}
-      <spotLight position={[3.5, 1.45, 0]} target={target} angle={0.55} penumbra={0.6} intensity={day ? 12 : 60} distance={22} color="#fff1d6" castShadow />
+      <spotLight position={[3.95, 1.1, 0]} target={target} angle={0.55} penumbra={0.6} intensity={day ? 12 : 60} distance={22} color="#fff1d6" castShadow />
     </group>
   )
 }
@@ -265,38 +263,56 @@ function Truck({ day }) {
   const body = useRef()
 
   const geo = useMemo(() => {
-    // Cab-over cab with a raked windscreen and a cut-out for the front wheel.
+    // Conventional truck: a cab behind a long hood, with rounded front fenders.
     const cab = new THREE.Shape()
     cab.moveTo(1.66, 0.8)
-    cab.lineTo(1.88, 0.8)
-    cab.absarc(2.35, 0.46, 0.56, Math.PI - 0.608, 0.608, true)
-    cab.lineTo(3.36, 0.8)
-    cab.lineTo(3.33, 1.56)
-    cab.quadraticCurveTo(3.32, 1.64, 3.25, 1.67)
-    cab.lineTo(3.0, 2.3)
-    cab.quadraticCurveTo(2.94, 2.42, 2.8, 2.42)
-    cab.lineTo(1.78, 2.4)
-    cab.quadraticCurveTo(1.66, 2.4, 1.66, 2.28)
+    cab.lineTo(2.86, 0.8)
+    cab.lineTo(2.86, 1.56)
+    cab.quadraticCurveTo(2.86, 1.62, 2.82, 1.64)
+    cab.lineTo(2.6, 2.3)
+    cab.quadraticCurveTo(2.55, 2.42, 2.42, 2.42)
+    cab.lineTo(1.78, 2.42)
+    cab.quadraticCurveTo(1.66, 2.42, 1.66, 2.3)
     cab.lineTo(1.66, 0.8)
 
-    const deflector = new THREE.Shape()
-    deflector.moveTo(1.7, 2.42)
-    deflector.lineTo(2.42, 2.42)
-    deflector.quadraticCurveTo(2.0, 2.5, 1.8, 2.8)
-    deflector.lineTo(1.7, 2.8)
-    deflector.lineTo(1.7, 2.42)
+    const hood = new THREE.Shape()
+    hood.moveTo(2.84, 0.95)
+    hood.lineTo(2.84, 1.6)
+    hood.quadraticCurveTo(3.3, 1.58, 3.68, 1.48)
+    hood.quadraticCurveTo(3.74, 1.46, 3.74, 1.4)
+    hood.lineTo(3.74, 0.95)
+    hood.lineTo(2.84, 0.95)
+
+    const fender = new THREE.Shape()
+    fender.moveTo(2.6, 0.78)
+    fender.quadraticCurveTo(2.62, 1.2, 3.05, 1.22)
+    fender.lineTo(3.66, 1.22)
+    fender.quadraticCurveTo(3.76, 1.21, 3.77, 1.1)
+    fender.lineTo(3.77, 0.78)
+    fender.lineTo(3.68, 0.78)
+    fender.absarc(3.15, 0.46, 0.53, 0.648, Math.PI - 0.648, false)
+    fender.lineTo(2.6, 0.78)
 
     const win = new THREE.Shape()
-    win.moveTo(2.18, 1.74)
-    win.lineTo(3.14, 1.74)
-    win.lineTo(2.94, 2.26)
-    win.lineTo(2.18, 2.26)
-    win.lineTo(2.18, 1.74)
+    win.moveTo(1.98, 1.72)
+    win.lineTo(2.75, 1.72)
+    win.lineTo(2.56, 2.27)
+    win.lineTo(1.98, 2.27)
+    win.lineTo(1.98, 1.72)
+
+    const rear = new THREE.Shape()
+    rear.moveTo(1.74, 1.72)
+    rear.lineTo(1.88, 1.72)
+    rear.lineTo(1.88, 2.27)
+    rear.lineTo(1.74, 2.27)
+    rear.lineTo(1.74, 1.72)
 
     return {
       cab: extrude(cab, 2.0, 0.05),
-      deflector: extrude(deflector, 1.8, 0.04),
+      hood: extrude(hood, 1.64, 0.06),
+      fender: extrude(fender, 0.34, 0.04),
       window: new THREE.ShapeGeometry(win),
+      rearWindow: new THREE.ShapeGeometry(rear),
     }
   }, [])
 
@@ -315,46 +331,56 @@ function Truck({ day }) {
     <group>
       <group ref={body}>
         {/* frame rails */}
-        <mesh position={[-0.9, 0.68, 0]} material={m.dark} castShadow><boxGeometry args={[5.1, 0.22, 1.0]} /></mesh>
+        <mesh position={[0.25, 0.62, 0]} material={m.dark} castShadow><boxGeometry args={[6.9, 0.22, 1.0]} /></mesh>
 
         {/* cab */}
         <mesh geometry={geo.cab} material={m.paint} castShadow receiveShadow />
-        <mesh geometry={geo.deflector} material={m.paint} castShadow />
-        <mesh position={[3.175, 2.0, 0]} rotation-z={0.378} material={m.glass}><boxGeometry args={[0.015, 0.62, 1.88]} /></mesh>
-        <RoundedBox args={[0.26, 0.05, 1.94]} radius={0.02} position={[3.0, 2.37, 0]} rotation-z={-0.12} material={m.gloss} />
+        <mesh position={[2.762, 1.987, 0]} rotation-z={0.322} material={m.glass}><boxGeometry args={[0.015, 0.64, 1.86]} /></mesh>
+        <RoundedBox args={[0.24, 0.05, 1.94]} radius={0.02} position={[2.6, 2.39, 0]} rotation-z={-0.12} material={m.gloss} />
+        {[-0.6, -0.3, 0, 0.3, 0.6].map((z) => (
+          <RoundedBox key={z} args={[0.07, 0.04, 0.1]} radius={0.015} position={[2.44, 2.49, z]} material={m.marker} />
+        ))}
+
+        {/* hood, fenders, grille */}
+        <mesh geometry={geo.hood} material={m.paint} castShadow receiveShadow />
+        <RoundedBox args={[0.04, 0.46, 1.08]} radius={0.03} position={[3.8, 1.17, 0]} material={m.chrome} />
+        <RoundedBox args={[0.04, 0.4, 1.0]} radius={0.02} position={[3.815, 1.17, 0]} material={m.gloss} />
+        {[1.0, 1.065, 1.13, 1.195, 1.26, 1.325].map((y) => (
+          <mesh key={y} position={[3.84, y, 0]} material={m.chrome}><boxGeometry args={[0.012, 0.02, 0.96]} /></mesh>
+        ))}
+        <RoundedBox args={[0.02, 0.06, 0.3]} radius={0.01} position={[3.82, 1.44, 0]} material={m.gloss} />
+        <mesh position={[3.4, 1.552, 0]} rotation-z={-0.2} material={m.gloss}><boxGeometry args={[0.5, 0.01, 1.2]} /></mesh>
+
         {sides.map((s) => (
           <group key={s}>
+            <mesh geometry={geo.fender} position-z={s * 0.9} material={m.paint} castShadow />
             <mesh geometry={geo.window} position-z={s * 1.056} material={m.glass} />
-            {/* door seam, beltline trim, door badge */}
-            <mesh position={[2.1, 1.55, s * 1.053]} material={m.gloss}><boxGeometry args={[0.012, 1.42, 0.006]} /></mesh>
-            <mesh position={[2.64, 1.7, s * 1.054]} material={m.chrome}><boxGeometry args={[1.0, 0.022, 0.006]} /></mesh>
-            <mesh position={[2.62, 1.3, s * 1.057]} rotation-y={s > 0 ? 0 : Math.PI}>
-              <planeGeometry args={[0.98, 0.245]} />
+            <mesh geometry={geo.rearWindow} position-z={s * 1.056} material={m.glass} />
+            {/* door seam, handle, beltline trim, door badge */}
+            <mesh position={[1.94, 1.55, s * 1.053]} material={m.gloss}><boxGeometry args={[0.012, 1.42, 0.006]} /></mesh>
+            <mesh position={[2.02, 1.6, s * 1.058]} material={m.chrome}><boxGeometry args={[0.14, 0.03, 0.012]} /></mesh>
+            <mesh position={[2.36, 1.68, s * 1.054]} material={m.chrome}><boxGeometry args={[0.8, 0.02, 0.006]} /></mesh>
+            <mesh position={[2.4, 1.3, s * 1.057]} rotation-y={s > 0 ? 0 : Math.PI}>
+              <planeGeometry args={[0.8, 0.2]} />
               {decal(brand.door, { transparent: true })}
             </mesh>
-            {/* mirrors */}
-            <mesh position={[3.14, 1.92, s * 1.16]} material={m.gloss}><boxGeometry args={[0.04, 0.04, 0.26]} /></mesh>
-            <RoundedBox args={[0.12, 0.42, 0.12]} radius={0.04} position={[3.1, 1.86, s * 1.3]} material={m.gloss} castShadow />
-            {/* step */}
-            <RoundedBox args={[0.34, 0.05, 0.2]} radius={0.015} position={[3.06, 0.68, s * 0.98]} material={m.gloss} />
+            {/* tall mirrors on the front corners of the cab */}
+            <mesh position={[2.79, 1.95, s * 1.2]} material={m.gloss}><boxGeometry args={[0.04, 0.04, 0.32]} /></mesh>
+            <mesh position={[2.79, 1.6, s * 1.2]} material={m.gloss}><boxGeometry args={[0.04, 0.04, 0.32]} /></mesh>
+            <RoundedBox args={[0.1, 0.5, 0.14]} radius={0.04} position={[2.76, 1.8, s * 1.36]} material={m.gloss} castShadow />
+            <RoundedBox args={[0.012, 0.42, 0.1]} radius={0.004} position={[2.82, 1.8, s * 1.36]} material={m.glass} />
+            {/* fuel tank and step under the door */}
+            <mesh position={[2.1, 0.56, s * 0.86]} rotation-z={Math.PI / 2} material={m.chrome} castShadow><cylinderGeometry args={[0.2, 0.2, 0.72, 28]} /></mesh>
+            <RoundedBox args={[0.42, 0.05, 0.22]} radius={0.015} position={[2.32, 0.82, s * 1.04]} material={m.gloss} />
           </group>
         ))}
 
-        {/* front: gloss-black mask with grille and badge */}
-        <RoundedBox args={[0.12, 0.84, 2.12]} radius={0.05} position={[3.37, 1.2, 0]} material={m.gloss} castShadow />
-        {[1.0, 1.08, 1.16, 1.24, 1.32].map((y) => (
-          <mesh key={y} position={[3.435, y, 0]} material={m.chrome}><boxGeometry args={[0.012, 0.018, 0.92]} /></mesh>
-        ))}
-        <RoundedBox args={[0.02, 0.09, 0.42]} radius={0.01} position={[3.44, 1.47, 0]} material={m.paint} />
         {/* bumper and fog lights */}
-        <RoundedBox args={[0.3, 0.26, 2.2]} radius={0.07} position={[3.46, 0.82, 0]} material={m.bumper} castShadow />
-        <mesh position={[3.615, 0.71, 0]} material={m.chrome}><boxGeometry args={[0.02, 0.025, 1.8]} /></mesh>
-        <mesh position={[3.612, 0.86, 0]} material={m.gloss}><boxGeometry args={[0.01, 0.08, 1.0]} /></mesh>
+        <RoundedBox args={[0.26, 0.24, 2.2]} radius={0.07} position={[3.9, 0.82, 0]} material={m.bumper} castShadow />
+        <mesh position={[4.035, 0.72, 0]} material={m.chrome}><boxGeometry args={[0.02, 0.025, 1.8]} /></mesh>
+        <mesh position={[4.033, 0.85, 0]} material={m.gloss}><boxGeometry args={[0.01, 0.08, 0.9]} /></mesh>
         {sides.map((s) => (
-          <group key={s}>
-            <mesh position={[3.615, 0.85, s * 0.84]} rotation-z={Math.PI / 2} material={m.head}><cylinderGeometry args={[0.042, 0.042, 0.015, 20]} /></mesh>
-            <mesh position={[2.96, 2.46, s * 0.9]} material={m.marker}><boxGeometry args={[0.08, 0.035, 0.08]} /></mesh>
-          </group>
+          <mesh key={s} position={[4.035, 0.84, s * 0.82]} rotation-z={Math.PI / 2} material={m.head}><cylinderGeometry args={[0.042, 0.042, 0.015, 20]} /></mesh>
         ))}
         <Headlights m={m} day={day} />
         <Beacon m={m} />
@@ -410,7 +436,7 @@ function Truck({ day }) {
         </group>
       </group>
 
-      {[2.35, -1.2, -2.28].map((x) => sides.map((s) => (
+      {[3.15, -1.2, -2.28].map((x) => sides.map((s) => (
         <Wheel key={`${x}${s}`} position={[x, 0.46, s * 0.9]} m={m} />
       )))}
     </group>
@@ -520,7 +546,7 @@ function Rig() {
     const portrait = aspect < 1
     // Wide, short screens (16:9 laptops) get a slightly further camera and the truck pushed right.
     const wide = Math.min(Math.max((aspect - 1.45) / 0.45, 0), 1)
-    const d = portrait ? 1.8 : 1.5 + wide * 0.28
+    const d = portrait ? 1.9 : 1.66 + wide * 0.26
 
     // Shot A: low 3/4 front. Shot B: side tracking shot, closer.
     const ax = 7.4 * d, ay = 1.7 + (portrait ? 1.4 : 0), az = 8.4 * d
@@ -537,8 +563,8 @@ function Rig() {
     target.set(x, y, z)
     camera.position.lerp(target, 1 - Math.exp(-dt * 5))
     // Frame the truck to the right of the headline on desktop, above it on phones.
-    const la = portrait ? [0.3, -1.7, 0] : [-2.45 - wide * 1.2, 0.95 + wide * 0.2, 2.1]
-    const lb = portrait ? [0, -1.1, 0] : [-0.9, 1.0, -0.3]
+    const la = portrait ? [0.85, -1.7, 0] : [-2.45 - wide * 1.2, 0.95 + wide * 0.2, 2.1]
+    const lb = portrait ? [0.7, -1.1, 0] : [-0.35, 1.0, -0.3]
     look.set(lerp(la[0], lb[0], pe), lerp(la[1], lb[1], pe), lerp(la[2], lb[2], pe))
     camera.lookAt(look)
   })
