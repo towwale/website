@@ -55,7 +55,7 @@ export default function BookingForm({ compact = false }) {
     <form className={`booking ${compact ? 'booking--compact' : ''}`} onSubmit={submit}>
       <div className="booking__head">
         <h2>Request a tow</h2>
-        <p>Get a fixed quote in under 2 minutes</p>
+        <p>Get a fixed quote before anything moves</p>
       </div>
 
       <div className="field-row">

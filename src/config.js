@@ -8,7 +8,6 @@ export const business = {
   whatsapp: '919876543210',        // country code + number, no "+"
   email: 'help@towwala.in',
   address: 'Andheri East, Mumbai, Maharashtra 400069',
-  avgArrival: '30 min',
 }
 
 export const services = [
@@ -28,17 +27,17 @@ export const pricing = [
   { name: 'Highway & Outstation', price: '35', unit: 'per km', features: ['Long-distance flatbed', 'Toll at actuals', 'Live driver tracking'], highlight: false },
 ]
 
-// The "minute by minute" rescue timeline.
+// The "how it works" steps.
 export const steps = [
-  { time: '00:00', title: 'You call', text: 'A real dispatcher picks up in under 30 seconds. Share your location on WhatsApp in one tap.' },
-  { time: '00:02', title: 'Fixed quote', text: 'You hear the full price before anything moves. That is the price you pay. No surprises on arrival.' },
-  { time: '00:05', title: 'Truck dispatched', text: 'The nearest verified truck is assigned. You get the driver’s name, photo and a live tracking link.' },
-  { time: '00:30', title: 'We’re with you', text: 'Your vehicle is loaded safely and driven to the garage of your choice. Pay by UPI once it’s dropped.' },
+  { time: '01', title: 'You call', text: 'A real person picks up, not an IVR menu. Share your location on WhatsApp in one tap.' },
+  { time: '02', title: 'Fixed quote', text: 'You hear the full price before anything moves. That is the price you pay. No surprises on arrival.' },
+  { time: '03', title: 'Truck dispatched', text: 'The nearest available verified truck is assigned. You get the driver’s name, photo and a live tracking link.' },
+  { time: '04', title: 'We’re with you', text: 'Your vehicle is loaded safely and driven to the garage of your choice. Pay by UPI once it’s dropped.' },
 ]
 
 export const stats = [
   { value: 24, suffix: '/7', label: 'Always on, including Diwali night' },
-  { value: 30, suffix: ' min', label: 'Average arrival inside city limits' },
+  { value: 8, suffix: ' services', label: 'From a jumpstart to crane recovery' },
   { value: 15, suffix: '+', label: 'Cities and expressways covered' },
   { value: 0, prefix: '₹', label: 'Charged before the job is done' },
 ]
@@ -51,13 +50,13 @@ export const cities = [
 
 // Sample reviews — replace with genuine customer reviews before going live.
 export const testimonials = [
-  { name: 'Rohit S.', city: 'Pune', text: 'Car broke down on the expressway at 11 pm. Truck came in 35 minutes and the price was exactly what they quoted.' },
+  { name: 'Rohit S.', city: 'Pune', text: 'Car broke down on the expressway at 11 pm. The driver kept me updated the whole way and the price was exactly what they quoted.' },
   { name: 'Ananya K.', city: 'Bengaluru', text: 'They moved my EV on a flatbed to the service centre. Very careful driver, kept me updated on WhatsApp.' },
-  { name: 'Imran M.', city: 'Delhi NCR', text: 'Dead battery in office parking. Jumpstarted in 10 minutes. Saved my day.' },
+  { name: 'Imran M.', city: 'Delhi NCR', text: 'Dead battery in office parking. Jumpstarted on the spot. Saved my day.' },
 ]
 
 export const faqs = [
-  { q: 'How fast can you reach me?', a: 'Inside city limits we usually arrive in 30–45 minutes. On highways it depends on the nearest truck, and we always tell you the ETA before dispatching.' },
+  { q: 'How long will the truck take?', a: 'It depends on where you are, traffic and which truck is free nearest to you. We give you an honest estimate on the call before you confirm, and share live tracking so you always know where the driver is.' },
   { q: 'Do you work at night and on holidays?', a: 'Yes. We run 24 hours a day, 7 days a week, including Diwali, Holi and every other holiday.' },
   { q: 'How is the towing charge calculated?', a: 'A fixed base fare covers the first 10 km, then a per-km rate. You get the full price on the phone before we send a truck.' },
   { q: 'Is my car safe during towing?', a: 'We use flatbeds for automatic, EV and luxury cars, soft straps and wheel locks, and every trip is tracked.' },

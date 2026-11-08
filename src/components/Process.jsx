@@ -31,7 +31,7 @@ export default function Process() {
       <div className="process__track" ref={track}>
         <div className="process__intro">
           <p className="eyebrow">How it works</p>
-          <h2 className="h2">Thirty minutes,<br /><em>minute by minute.</em></h2>
+          <h2 className="h2">Four steps.<br /><em>No surprises.</em></h2>
           <p>What happens after you call. No apps to download, no forms, no waiting on hold.</p>
           <div className="process__bar"><span className="process__fill" /></div>
         </div>

@@ -2,16 +2,15 @@ import { useEffect, useState } from 'react'
 import { reducedMotion } from '../lib/scroll.js'
 
 // A sample "live job" card that shows what a customer sees after calling.
-const stages = ['Dispatcher assigned', 'Truck en route', 'Arriving shortly']
+const stages = ['Dispatcher assigned', 'Truck en route', 'Driver nearby']
 const ROUTE = 'M16 34 C60 34 70 16 120 18 S200 34 262 22'
 
 export default function DispatchCard() {
-  const [eta, setEta] = useState(14)
-  const stage = eta > 11 ? 0 : eta > 6 ? 1 : 2
+  const [stage, setStage] = useState(0)
 
   useEffect(() => {
     if (reducedMotion) return
-    const id = setInterval(() => setEta((m) => (m <= 4 ? 14 : m - 1)), 2600)
+    const id = setInterval(() => setStage((n) => (n + 1) % stages.length), 3200)
     return () => clearInterval(id)
   }, [])
 
@@ -36,7 +35,7 @@ export default function DispatchCard() {
         </g>
       </svg>
       <div className="dispatch__stats">
-        <div><span>Arriving in</span><strong>{eta} min</strong></div>
+        <div><span>Tracking</span><strong>Live</strong></div>
         <div><span>Fixed price</span><strong>₹1,499</strong></div>
         <div><span>Pay</span><strong>After, UPI</strong></div>
       </div>

@@ -81,7 +81,7 @@ export default function Hero({ ready }) {
           <div className="hero__row">
             <p className="hero__fade hero__lead">
               24x7 towing and roadside rescue across India. A fixed price before we move,
-              a verified driver in about {business.avgArrival}, and you pay only when the job is done.
+              a verified driver with live tracking, and you pay only when the job is done.
             </p>
             <div className="hero__fade hero__ctas">
               <Magnetic>
