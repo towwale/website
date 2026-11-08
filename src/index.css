@@ -600,3 +600,124 @@ em { font-family: var(--serif); font-style: italic; font-weight: 400; letter-spa
   *, *::before, *::after { animation: none !important; transition-duration: .01ms !important; }
   .statement__w { opacity: 1; }
 }
+
+/* =========================================================
+   Theme toggle
+   ========================================================= */
+.theme-toggle {
+  width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center; cursor: pointer;
+  background: rgba(255,255,255,.07); border: 1px solid var(--line-dark); color: var(--text);
+  backdrop-filter: blur(14px); transition: background .3s, color .3s, transform .6s var(--ease);
+}
+.theme-toggle:hover { background: var(--text); color: var(--night); transform: rotate(-20deg); }
+.theme-toggle:focus-visible { outline: 2px solid var(--amber); outline-offset: 3px; }
+.theme-toggle svg { overflow: visible; }
+.theme-toggle__sun, .theme-toggle__moon { transform-origin: 12px 12px; transition: transform .6s var(--ease), opacity .3s; }
+/* Dark shows the sun (switch to light); light shows the moon. */
+.theme-toggle__moon { opacity: 0; transform: rotate(-90deg) scale(.5); }
+[data-theme="light"] .theme-toggle__sun { opacity: 0; transform: rotate(90deg) scale(.5); }
+[data-theme="light"] .theme-toggle__moon { opacity: 1; transform: none; }
+
+::view-transition-old(root), ::view-transition-new(root) { animation: none; mix-blend-mode: normal; }
+
+/* =========================================================
+   Light theme ("daylight")
+   ========================================================= */
+[data-theme="light"] {
+  color-scheme: light;
+  --night: #f6f3ec;
+  --night-2: #ffffff;
+  --night-3: #ece7dc;
+  --line-dark: rgba(13, 16, 20, 0.1);
+  --cream: #ebe4d6;
+  --cream-2: #e1d9c8;
+  --text: #0d1014;
+  --text-dim: rgba(13, 16, 20, 0.62);
+  --accent-text: #b06d00;
+}
+[data-theme="light"] .grain { opacity: .035; }
+
+/* Amber text gets a deeper shade so it stays readable on light backgrounds */
+[data-theme="light"] .h2 em,
+[data-theme="light"] .hero__title em,
+[data-theme="light"] .hero__hindi,
+[data-theme="light"] .numbers__item small,
+[data-theme="light"] .review__stars,
+[data-theme="light"] .booking-sec__list svg,
+[data-theme="light"] .menu nav small,
+[data-theme="light"] .bento__icon,
+[data-theme="light"] .promises__icon,
+[data-theme="light"] .footer ul a:hover,
+[data-theme="light"] .footer__phone:hover { color: var(--accent-text); }
+
+/* Buttons and pills */
+[data-theme="light"] .btn--glass { background: rgba(255,255,255,.55); border-color: rgba(13,16,20,.16); }
+[data-theme="light"] .btn--glass:hover,
+[data-theme="light"] .btn--line:hover { color: #f6f3ec; }
+[data-theme="light"] .btn--dark { color: #f6f3ec; }
+[data-theme="light"] .btn--amber::before { background: var(--ink); }
+[data-theme="light"] .btn--amber:hover { color: var(--amber); }
+[data-theme="light"] .pill,
+[data-theme="light"] .chip,
+[data-theme="light"] .theme-toggle,
+[data-theme="light"] .burger { background: rgba(255,255,255,.6); }
+[data-theme="light"] .pill:hover { color: #f6f3ec; }
+
+/* Header and cursor */
+[data-theme="light"] .header.is-scrolled { background: rgba(246,243,236,.72); }
+[data-theme="light"] .has-cursor .cursor-ring { border-color: rgba(13,16,20,.4); mix-blend-mode: normal; }
+[data-theme="light"] .has-cursor .cursor-ring.is-hot { background: rgba(255,180,0,.25); border-color: var(--amber); }
+
+/* Hero: soft paper haze instead of night shadow */
+[data-theme="light"] .hero__shade {
+  background:
+    linear-gradient(to top, rgba(246,243,236,.94) 0%, rgba(246,243,236,.45) 32%, transparent 55%),
+    linear-gradient(to right, rgba(246,243,236,.7) 0%, transparent 45%);
+}
+[data-theme="light"] .hero__fallback { background: radial-gradient(60% 60% at 70% 40%, rgba(255,180,0,.25), transparent 70%), var(--night); }
+[data-theme="light"] .dispatch {
+  background: rgba(255,255,255,.72); border-color: rgba(13,16,20,.08);
+  box-shadow: 0 30px 80px -30px rgba(60,45,10,.35);
+}
+[data-theme="light"] .dispatch__status { color: #137a42; }
+[data-theme="light"] .dispatch__map { background: rgba(13,16,20,.04); }
+[data-theme="light"] .dispatch__road { stroke: rgba(13,16,20,.08); }
+[data-theme="light"] .dispatch__route { stroke: #e09a00; }
+[data-theme="light"] .dispatch__truck rect { fill: #17a456; }
+
+/* Sections */
+[data-theme="light"] .bento__card { box-shadow: 0 1px 0 rgba(13,16,20,.04); }
+[data-theme="light"] .bento__card--0 { background: linear-gradient(160deg, #fff1cc 0%, #ffffff 60%); }
+[data-theme="light"] .bento__icon { background: rgba(255,180,0,.1); }
+[data-theme="light"] .bento__card:hover .bento__icon { color: var(--ink); }
+[data-theme="light"] .process__step { background: #fffdf8; }
+[data-theme="light"] .process__step:nth-child(odd) { background: var(--ink); color: #f6f3ec; }
+[data-theme="light"] .process__step:nth-child(odd) p,
+[data-theme="light"] .process__step:nth-child(odd) .process__idx { color: rgba(246,243,236,.62); }
+[data-theme="light"] .plan:not(.plan--hot) { background: #fffdf8; }
+[data-theme="light"] .review { box-shadow: 0 20px 50px -30px rgba(60,45,10,.25); }
+
+/* Booking */
+[data-theme="light"] .booking-sec__glow { background: radial-gradient(circle, rgba(255,180,0,.3), transparent 62%); }
+[data-theme="light"] .booking { background: rgba(255,255,255,.8); box-shadow: 0 40px 120px -50px rgba(60,45,10,.4); }
+[data-theme="light"] .field input,
+[data-theme="light"] .field select { background-color: #f6f3ec; }
+[data-theme="light"] .field input::placeholder { color: rgba(13,16,20,.35); }
+[data-theme="light"] .field select {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' fill='none' stroke='%230d1014' stroke-width='1.5'/%3E%3C/svg%3E");
+}
+[data-theme="light"] .field input:focus,
+[data-theme="light"] .field select:focus { background-color: #fff; }
+[data-theme="light"] .locate-btn { color: var(--accent-text); }
+[data-theme="light"] .locate-btn:hover { color: var(--ink); }
+[data-theme="light"] .field__error { color: #c0341d; }
+
+/* Footer wordmark: deeper gradient so it reads on paper */
+[data-theme="light"] .footer__word { background-image: linear-gradient(to bottom, rgba(230,150,0,.95), rgba(255,180,0,0) 80%); }
+
+@media (max-width: 900px) {
+  [data-theme="light"] .hero__shade { background: linear-gradient(to top, rgba(246,243,236,.97) 0%, rgba(246,243,236,.9) 55%, rgba(246,243,236,.55) 67%, transparent 80%); }
+}
+@media (max-width: 600px) {
+  [data-theme="light"] .mobile-bar { background: rgba(246,243,236,.85); }
+}

@@ -6,7 +6,7 @@ import { EffectComposer, Bloom, Vignette } from '@react-three/postprocessing'
 import { heroState, reducedMotion } from '../lib/scroll.js'
 import { business } from '../config.js'
 
-const BG = '#06080b'
+const BG = { night: '#06080b', day: '#e9e4d9' }
 const SPEED = reducedMotion ? 0 : 9 // road units per second
 const lerp = (a, b, t) => a + (b - a) * t
 
@@ -103,11 +103,11 @@ function Beacon({ m }) {
   )
 }
 
-function Headlights({ m }) {
+function Headlights({ m, day }) {
   const target = useMemo(() => { const o = new THREE.Object3D(); o.position.set(14, -0.4, 0); return o }, [])
   const beam = useMemo(() => new THREE.MeshBasicMaterial({
-    color: '#fff1d0', transparent: true, opacity: 0.05, blending: THREE.AdditiveBlending, depthWrite: false, side: THREE.DoubleSide,
-  }), [])
+    color: '#fff1d0', transparent: true, opacity: day ? 0 : 0.05, blending: THREE.AdditiveBlending, depthWrite: false, side: THREE.DoubleSide,
+  }), [day])
   return (
     <group>
       <primitive object={target} />
@@ -119,12 +119,12 @@ function Headlights({ m }) {
           </mesh>
         </group>
       ))}
-      <spotLight position={[3.4, 1.1, 0]} target={target} angle={0.55} penumbra={0.6} intensity={60} distance={22} color="#fff1d6" castShadow />
+      <spotLight position={[3.4, 1.1, 0]} target={target} angle={0.55} penumbra={0.6} intensity={day ? 12 : 60} distance={22} color="#fff1d6" castShadow />
     </group>
   )
 }
 
-function Truck() {
+function Truck({ day }) {
   const m = useMaterials()
   const decal = useDecal()
   const body = useRef()
@@ -158,7 +158,7 @@ function Truck() {
             <mesh position={[0, -0.05, z > 0 ? 0.12 : -0.12]} material={m.dark}><boxGeometry args={[0.08, 0.32, 0.06]} /></mesh>
           </group>
         ))}
-        <Headlights m={m} />
+        <Headlights m={m} day={day} />
         <Beacon m={m} />
 
         {/* flatbed */}
@@ -222,11 +222,11 @@ function Scroller({ count, spacing, children }) {
   return <group ref={group}>{Array.from({ length: count }, (_, i) => children(i, -LOOP / 2 + i * spacing))}</group>
 }
 
-function Streetlights() {
+function Streetlights({ day }) {
   const glow = useGlow()
-  const lamp = useMemo(() => new THREE.MeshStandardMaterial({ color: '#fff', emissive: '#ffcf8a', emissiveIntensity: 7, toneMapped: false }), [])
-  const pole = useMemo(() => new THREE.MeshStandardMaterial({ color: '#1a1e24', metalness: 0.8, roughness: 0.4 }), [])
-  const pool = useMemo(() => new THREE.MeshBasicMaterial({ map: glow, transparent: true, opacity: 0.55, blending: THREE.AdditiveBlending, depthWrite: false }), [glow])
+  const lamp = useMemo(() => new THREE.MeshStandardMaterial({ color: '#fff', emissive: '#ffcf8a', emissiveIntensity: day ? 0.2 : 7, toneMapped: false }), [day])
+  const pole = useMemo(() => new THREE.MeshStandardMaterial({ color: day ? '#7d838c' : '#1a1e24', metalness: 0.8, roughness: 0.4 }), [day])
+  const pool = useMemo(() => new THREE.MeshBasicMaterial({ map: glow, transparent: true, opacity: day ? 0 : 0.55, blending: THREE.AdditiveBlending, depthWrite: false }), [glow, day])
   return (
     <Scroller count={10} spacing={12}>
       {(i, x) => (
@@ -241,9 +241,9 @@ function Streetlights() {
   )
 }
 
-function Barrier() {
-  const mat = useMemo(() => new THREE.MeshStandardMaterial({ color: '#3a3f47', metalness: 0.9, roughness: 0.3 }), [])
-  const refl = useMemo(() => new THREE.MeshStandardMaterial({ color: '#ffb400', emissive: '#ff9a00', emissiveIntensity: 2.5, toneMapped: false }), [])
+function Barrier({ day }) {
+  const mat = useMemo(() => new THREE.MeshStandardMaterial({ color: day ? '#a9afb7' : '#3a3f47', metalness: 0.9, roughness: 0.3 }), [day])
+  const refl = useMemo(() => new THREE.MeshStandardMaterial({ color: '#ffb400', emissive: '#ff9a00', emissiveIntensity: day ? 0.5 : 2.5, toneMapped: false }), [day])
   return (
     <>
       <mesh position={[0, 0.55, -4.1]} material={mat}><boxGeometry args={[LOOP * 2, 0.22, 0.05]} /></mesh>
@@ -259,7 +259,8 @@ function Barrier() {
   )
 }
 
-function Road({ hq }) {
+function Road({ hq, day }) {
+  const asphalt = day ? '#4a4d52' : '#0b0e12'
   const line = useMemo(() => new THREE.MeshBasicMaterial({ color: '#d9d4c7' }), [])
   const edge = useMemo(() => new THREE.MeshBasicMaterial({ color: '#ffb400' }), [])
   return (
@@ -268,12 +269,12 @@ function Road({ hq }) {
         <planeGeometry args={[LOOP * 2, 40]} />
         {hq ? (
           <MeshReflectorMaterial
-            blur={[400, 120]} resolution={1024} mixBlur={1} mixStrength={14} mirror={0.55}
+            blur={[400, 120]} resolution={1024} mixBlur={1} mixStrength={day ? 3 : 14} mirror={day ? 0.25 : 0.55}
             roughness={0.9} depthScale={1.1} minDepthThreshold={0.4} maxDepthThreshold={1.3}
-            color="#0b0e12" metalness={0.6}
+            color={asphalt} metalness={day ? 0.2 : 0.6}
           />
         ) : (
-          <meshStandardMaterial color="#0b0e12" roughness={0.5} metalness={0.5} />
+          <meshStandardMaterial color={asphalt} roughness={0.6} metalness={day ? 0.1 : 0.5} />
         )}
       </mesh>
       {[3.4, -3.4].map((z) => (
@@ -324,16 +325,17 @@ function Rig() {
     target.set(x, y, z)
     camera.position.lerp(target, 1 - Math.exp(-dt * 5))
     // Frame the truck to the right of the headline on desktop, above it on phones.
-    const la = portrait ? [0.3, -0.3, 0] : [-2.3, 0.9, 2.1]
-    const lb = portrait ? [0, 0.1, 0] : [-0.9, 1.0, -0.3]
+    const la = portrait ? [0.3, -1.7, 0] : [-2.3, 0.9, 2.1]
+    const lb = portrait ? [0, -1.1, 0] : [-0.9, 1.0, -0.3]
     look.set(lerp(la[0], lb[0], pe), lerp(la[1], lb[1], pe), lerp(la[2], lb[2], pe))
     camera.lookAt(look)
   })
   return null
 }
 
-export default function HeroScene({ active = true }) {
+export default function HeroScene({ active = true, day = false }) {
   const hq = typeof window !== 'undefined' && window.innerWidth > 900
+  const bg = day ? BG.day : BG.night
   return (
     <Canvas
       shadows
@@ -342,30 +344,43 @@ export default function HeroScene({ active = true }) {
       camera={{ position: [18, 7, 20], fov: 30, near: 0.1, far: 120 }}
       gl={{ antialias: false, powerPreference: 'high-performance' }}
     >
-      <color attach="background" args={[BG]} />
-      <fog attach="fog" args={[BG, 16, 52]} />
-      <ambientLight intensity={0.22} />
-      <hemisphereLight args={['#8fa6c9', '#06080b', 0.35]} />
-      <directionalLight position={[-8, 12, 6]} intensity={0.9} color="#b7c8ff" castShadow
-        shadow-mapSize={[1024, 1024]} shadow-camera-left={-8} shadow-camera-right={8} shadow-camera-top={8} shadow-camera-bottom={-8} />
-      <directionalLight position={[8, 3, -6]} intensity={0.6} color="#ffb766" />
+      <color attach="background" args={[bg]} />
+      <fog attach="fog" args={[bg, day ? 20 : 16, day ? 64 : 52]} />
+      {day ? (
+        <>
+          {/* Soft late-afternoon sun */}
+          <ambientLight intensity={0.75} />
+          <hemisphereLight args={['#ffffff', '#c9bfab', 1.1]} />
+          <directionalLight position={[-8, 14, 8]} intensity={2.6} color="#fff1dc" castShadow
+            shadow-mapSize={[1024, 1024]} shadow-camera-left={-8} shadow-camera-right={8} shadow-camera-top={8} shadow-camera-bottom={-8} />
+          <directionalLight position={[8, 4, -6]} intensity={0.8} color="#ffd9a6" />
+        </>
+      ) : (
+        <>
+          <ambientLight intensity={0.22} />
+          <hemisphereLight args={['#8fa6c9', '#06080b', 0.35]} />
+          <directionalLight position={[-8, 12, 6]} intensity={0.9} color="#b7c8ff" castShadow
+            shadow-mapSize={[1024, 1024]} shadow-camera-left={-8} shadow-camera-right={8} shadow-camera-top={8} shadow-camera-bottom={-8} />
+          <directionalLight position={[8, 3, -6]} intensity={0.6} color="#ffb766" />
+        </>
+      )}
 
-      <Environment resolution={256} frames={1}>
-        <Lightformer intensity={2.2} rotation-x={Math.PI / 2} position={[0, 8, 0]} scale={[14, 6, 1]} />
-        <Lightformer intensity={4} color="#ffc27a" rotation-y={Math.PI / 2} position={[-10, 2, 0]} scale={[20, 1.2, 1]} />
-        <Lightformer intensity={2} color="#7fa4ff" rotation-y={-Math.PI / 2} position={[10, 3, 2]} scale={[20, 1, 1]} />
-        <Lightformer intensity={1.2} position={[0, 2, 10]} scale={[16, 2, 1]} />
+      <Environment key={day ? 'day' : 'night'} resolution={256} frames={1}>
+        <Lightformer intensity={day ? 3.2 : 2.2} rotation-x={Math.PI / 2} position={[0, 8, 0]} scale={[14, 6, 1]} />
+        <Lightformer intensity={day ? 2.4 : 4} color="#ffc27a" rotation-y={Math.PI / 2} position={[-10, 2, 0]} scale={[20, 1.2, 1]} />
+        <Lightformer intensity={day ? 1.6 : 2} color={day ? '#dfe8ff' : '#7fa4ff'} rotation-y={-Math.PI / 2} position={[10, 3, 2]} scale={[20, 1, 1]} />
+        <Lightformer intensity={day ? 2 : 1.2} position={[0, 2, 10]} scale={[16, 2, 1]} />
       </Environment>
 
-      <Truck />
-      <Road hq={hq} />
-      <Streetlights />
-      <Barrier />
+      <Truck day={day} />
+      <Road hq={hq} day={day} />
+      <Streetlights day={day} />
+      <Barrier day={day} />
       <Rig />
 
       <EffectComposer multisampling={hq ? 4 : 0} disableNormalPass>
-        <Bloom mipmapBlur luminanceThreshold={1} luminanceSmoothing={0.2} intensity={1.15} radius={0.75} />
-        <Vignette offset={0.25} darkness={0.75} />
+        <Bloom mipmapBlur luminanceThreshold={1} luminanceSmoothing={0.2} intensity={day ? 0.5 : 1.15} radius={0.75} />
+        <Vignette offset={0.25} darkness={day ? 0.22 : 0.75} />
       </EffectComposer>
     </Canvas>
   )

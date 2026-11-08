@@ -5,6 +5,7 @@ import Magnetic from './Magnetic.jsx'
 import DispatchCard from './DispatchCard.jsx'
 import { business } from '../config.js'
 import { heroState } from '../lib/scroll.js'
+import { useTheme } from '../lib/theme.js'
 
 const HeroScene = lazy(() => import('./HeroScene.jsx'))
 
@@ -17,6 +18,7 @@ class SceneBoundary extends Component {
 export default function Hero({ ready }) {
   const root = useRef()
   const [active, setActive] = useState(true)
+  const day = useTheme() === 'light'
 
   // Pause the 3D render loop when the hero is off screen.
   useEffect(() => {
@@ -60,7 +62,7 @@ export default function Hero({ ready }) {
         <div className="hero__canvas">
           <SceneBoundary>
             <Suspense fallback={null}>
-              <HeroScene active={active} />
+              <HeroScene active={active} day={day} />
             </Suspense>
           </SceneBoundary>
         </div>

@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import Icon from './Icon.jsx'
+import ThemeToggle from './ThemeToggle.jsx'
 import { business } from '../config.js'
 
 const links = [
@@ -42,6 +43,7 @@ export default function Header() {
             {links.map((l) => <a key={l.href} href={l.href}>{l.label}</a>)}
           </nav>
           <div className="header__right">
+            <ThemeToggle />
             <a href={`tel:${business.phone}`} className="pill pill--light">
               <span className="live-dot" /> <span className="hide-sm">{business.phoneDisplay}</span><span className="show-sm">Call</span>
             </a>

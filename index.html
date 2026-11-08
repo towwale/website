@@ -1,11 +1,18 @@
 <!doctype html>
-<html lang="en-IN">
+<html lang="en-IN" data-theme="dark">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Towwala — 24x7 Towing & Roadside Assistance in India</title>
     <meta name="description" content="Fast, fair-priced 24x7 car and bike towing, flatbed transport, battery jumpstart and roadside assistance across India. Call now." />
     <meta name="theme-color" content="#06080b" />
+    <script>
+      try {
+        var t = localStorage.getItem('towwala-theme') || (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark')
+        document.documentElement.dataset.theme = t
+        if (t === 'light') document.querySelector('meta[name="theme-color"]').setAttribute('content', '#f6f3ec')
+      } catch (e) {}
+    </script>
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
