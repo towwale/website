@@ -2,6 +2,7 @@ import { Component, Suspense, lazy, useEffect, useRef, useState } from 'react'
 import gsap from 'gsap'
 import Icon from './Icon.jsx'
 import Magnetic from './Magnetic.jsx'
+import DispatchCard from './DispatchCard.jsx'
 import { business } from '../config.js'
 import { heroState } from '../lib/scroll.js'
 
@@ -35,6 +36,7 @@ export default function Hero({ ready }) {
       })
         .to('.hero__content', { opacity: 0, y: -80, ease: 'none', duration: 0.35 }, 0)
         .to('.hero__scroll', { opacity: 0, duration: 0.1 }, 0)
+        .to('.dispatch', { opacity: 0, y: -40, ease: 'none', duration: 0.3 }, 0)
         .fromTo('.hero__caption', { opacity: 0, y: 60 }, { opacity: 1, y: 0, ease: 'none', duration: 0.3 }, 0.45)
         .to('.hero__caption', { opacity: 0, y: -40, ease: 'none', duration: 0.15 }, 0.85)
     }, root)
@@ -65,7 +67,10 @@ export default function Hero({ ready }) {
         <div className="hero__shade" />
 
         <div className="wrap hero__content">
-          <p className="hero__fade chip"><span className="live-dot" /> Dispatch live · 24x7 across India</p>
+          <div className="hero__fade hero__tags">
+            <p className="chip"><span className="live-dot" /> Dispatch live · 24x7 across India</p>
+            <p className="hero__hindi" lang="hi">गाड़ी रुक गई? हम आ रहे हैं।</p>
+          </div>
           <h1 className="hero__title">
             <span className="line"><span>Stranded?</span></span>
             <span className="line"><span>We’re already</span></span>
@@ -87,6 +92,10 @@ export default function Hero({ ready }) {
               </Magnetic>
             </div>
           </div>
+        </div>
+
+        <div className="wrap hero__side">
+          <DispatchCard />
         </div>
 
         <div className="wrap hero__caption">

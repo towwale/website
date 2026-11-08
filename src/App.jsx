@@ -7,6 +7,7 @@ import Cursor from './components/Cursor.jsx'
 import Header from './components/Header.jsx'
 import Hero from './components/Hero.jsx'
 import Marquee from './components/Marquee.jsx'
+import Promises from './components/Promises.jsx'
 import Statement from './components/Statement.jsx'
 import Services from './components/Services.jsx'
 import Process from './components/Process.jsx'
@@ -52,6 +53,7 @@ export default function App() {
       <main>
         <Hero ready={ready} />
         <Marquee />
+        <Promises />
         <Statement />
         <Services />
         <Process />
