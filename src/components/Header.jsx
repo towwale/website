@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import Icon from './Icon.jsx'
 import ThemeToggle from './ThemeToggle.jsx'
+import Logo from './Logo.jsx'
 import { business } from '../config.js'
 
 const links = [
@@ -36,8 +37,7 @@ export default function Header() {
       <header className={`header ${scrolled ? 'is-scrolled' : ''} ${hidden && !open ? 'is-hidden' : ''}`}>
         <div className="wrap header__inner">
           <a href="#top" className="logo" aria-label={`${business.name} home`} onClick={() => setOpen(false)}>
-            <span className="logo__mark" />
-            {business.name}
+            <Logo />
           </a>
           <nav className="nav" aria-label="Main">
             {links.map((l) => <a key={l.href} href={l.href}>{l.label}</a>)}

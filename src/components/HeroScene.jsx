@@ -63,38 +63,32 @@ function canvasTexture(w, h, draw) {
   paint()
   // Repaint once the exact font weights have loaded, so the lettering is never missing or in Arial.
   document.fonts?.load?.('800 80px "Inter Tight"')
-    .then(() => Promise.all(['600', '700'].map((wt) => document.fonts.load(`${wt} 30px "Inter Tight"`))))
+    .then(() => Promise.all(['300', '600', '700'].map((wt) => document.fonts.load(`${wt} 30px "Inter Tight"`))))
     .then(paint, paint)
   return t
 }
 
-function logoMark(g, x, y, s, bg, fg) {
-  g.save()
-  g.fillStyle = bg
-  g.beginPath(); g.roundRect(x, y, s, s, s * 0.24); g.fill()
-  g.beginPath(); g.roundRect(x + s * 0.2, y + s * 0.3, s * 0.6, s * 0.36, 2); g.clip()
-  g.fillStyle = fg
-  for (let i = -2; i < 6; i++) {
-    g.beginPath()
-    g.moveTo(x + i * s * 0.2, y + s); g.lineTo(x + i * s * 0.2 + s * 0.1, y + s)
-    g.lineTo(x + i * s * 0.2 + s * 0.6, y); g.lineTo(x + i * s * 0.2 + s * 0.5, y); g.fill()
-  }
-  g.restore()
+// Draw the wordmark: "Tow" heavy, "wala" light, side by side on one baseline.
+function wordmark(g, x, y, size, towColor, walaColor, align = 'left') {
+  g.textBaseline = 'alphabetic'
+  g.font = `800 ${size}px "Inter Tight", Arial, sans-serif`
+  const tw = g.measureText('Tow').width - size * 0.04
+  g.font = `300 ${size}px "Inter Tight", Arial, sans-serif`
+  const ww = g.measureText('wala').width
+  const start = align === 'right' ? x - tw - ww : x
+  g.font = `800 ${size}px "Inter Tight", Arial, sans-serif`
+  g.fillStyle = towColor; g.fillText('Tow', start, y)
+  g.font = `300 ${size}px "Inter Tight", Arial, sans-serif`
+  g.fillStyle = walaColor; g.fillText('wala', start + tw, y)
 }
 
 function useBrand() {
   return useMemo(() => ({
-    // Side toolbox: dark panel, amber speed stripes, name and number.
+    // Side toolbox: dark panel with the wordmark and number.
     side: canvasTexture(1024, 168, (g, w, h) => {
       g.fillStyle = '#0c0d10'; g.fillRect(0, 0, w, h)
-      g.fillStyle = '#ffb400'
-      for (let i = 0; i < 3; i++) {
-        const x = 24 + i * 34
-        g.beginPath(); g.moveTo(x, h - 24); g.lineTo(x + 18, h - 24); g.lineTo(x + 58, 24); g.lineTo(x + 40, 24); g.fill()
-      }
+      wordmark(g, 40, h / 2 + 30, 92, '#f4f1ea', '#ffb400')
       g.textBaseline = 'middle'
-      g.font = '800 86px "Inter Tight", Arial, sans-serif'
-      g.fillText('TOWWALA', 170, h / 2 + 4)
       g.textAlign = 'right'
       g.fillStyle = '#d9d4c7'
       g.font = '600 28px "Inter Tight", Arial, sans-serif'
@@ -103,13 +97,9 @@ function useBrand() {
       g.font = '700 38px "Inter Tight", Arial, sans-serif'
       g.fillText(business.phoneDisplay, w - 34, h / 2 + 24)
     }),
-    // Door badge on the amber cab.
+    // Door lettering on the amber cab: ink "Tow", white "wala".
     door: canvasTexture(512, 128, (g, w, h) => {
-      logoMark(g, 10, 22, 84, '#0c0d10', '#ffb400')
-      g.fillStyle = '#0c0d10'
-      g.textBaseline = 'middle'
-      g.font = '800 70px "Inter Tight", Arial, sans-serif'
-      g.fillText('Towwala', 112, h / 2 + 3)
+      wordmark(g, 12, h / 2 + 26, 84, '#0c0d10', '#ffffff')
     }),
     // Indian-style number plate.
     plate: canvasTexture(512, 112, (g, w, h) => {

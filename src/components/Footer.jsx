@@ -1,3 +1,4 @@
+import Logo from './Logo.jsx'
 import Icon from './Icon.jsx'
 import Magnetic from './Magnetic.jsx'
 import { business, services } from '../config.js'
@@ -46,7 +47,7 @@ export default function Footer() {
         </div>
       </div>
 
-      <div className="footer__word" aria-hidden="true">{business.name}</div>
+      <div className="footer__word" aria-hidden="true"><Logo /></div>
 
       <div className="wrap footer__bottom">
         <span>© {new Date().getFullYear()} {business.name}. All rights reserved.</span>

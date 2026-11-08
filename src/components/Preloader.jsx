@@ -24,7 +24,7 @@ export default function Preloader({ onDone }) {
   return (
     <div ref={root} className="preloader" aria-hidden="true">
       <div className="preloader__word">
-        {'TOWWALA'.split('').map((c, i) => <span key={i}>{c}</span>)}
+        {'Towwala'.split('').map((c, i) => <span key={i} className={i < 3 ? 'brand__tow' : 'brand__wala'}>{c}</span>)}
       </div>
       <div className="preloader__foot">
         <span>Roadside assistance · India</span>

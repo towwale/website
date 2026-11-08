@@ -146,9 +146,10 @@ em { font-family: var(--serif); font-style: italic; font-weight: 400; letter-spa
   display: grid; place-items: center;
 }
 .preloader__word {
-  display: flex; overflow: hidden; line-height: 0.9;
-  font-size: clamp(64px, 15vw, 220px); font-weight: 700; letter-spacing: -0.06em;
+  display: flex; overflow: hidden; line-height: 0.9; padding-bottom: 0.08em;
+  font-size: clamp(64px, 15vw, 220px); font-weight: 800; letter-spacing: -0.06em;
 }
+.preloader__word .brand__wala { font-weight: 300; letter-spacing: -0.04em; }
 .preloader__word span { display: inline-block; }
 .preloader__foot {
   position: absolute; left: var(--gutter); right: var(--gutter); bottom: 40px;
@@ -159,6 +160,16 @@ em { font-family: var(--serif); font-style: italic; font-weight: 400; letter-spa
 .preloader__bar { position: absolute; left: 0; right: 0; bottom: 0; height: 3px; background: var(--line-dark); }
 .preloader__bar span { display: block; height: 100%; background: var(--amber); transform: scaleX(0); transform-origin: left; }
 
+/* ---------- Brand wordmark ---------- */
+/* "Tow" heavy in the text colour, "wala" light in amber. One typeface, two weights. */
+:root { --brand-amber: var(--amber); }
+[data-theme="light"] { --brand-amber: #d98c00; }
+.brand { display: inline-flex; align-items: baseline; font-weight: 800; letter-spacing: -0.06em; line-height: 1; white-space: nowrap; }
+.brand__tow { color: var(--text); }
+.brand__wala { color: var(--brand-amber); font-weight: 300; letter-spacing: -0.04em; }
+.preloader__word .brand__tow { color: var(--text); }
+.preloader__word .brand__wala { color: var(--brand-amber); }
+
 /* ---------- Header ---------- */
 .header {
   position: fixed; inset: 0 0 auto 0; z-index: 100; height: 84px;
@@ -168,14 +179,7 @@ em { font-family: var(--serif); font-style: italic; font-weight: 400; letter-spa
 .header.is-scrolled { height: 70px; background: rgba(6,8,11,.6); backdrop-filter: blur(18px) saturate(1.4); border-color: var(--line-dark); }
 .header.is-hidden { transform: translateY(-100%); }
 .header__inner { height: 100%; display: flex; align-items: center; justify-content: space-between; gap: 24px; }
-.logo { display: inline-flex; align-items: center; gap: 10px; font-size: 21px; font-weight: 700; letter-spacing: -0.04em; }
-.logo__mark {
-  width: 26px; height: 26px; border-radius: 8px; background: var(--amber); position: relative;
-}
-.logo__mark::after {
-  content: ''; position: absolute; inset: 7px 5px 9px 5px; border-radius: 2px;
-  background: repeating-linear-gradient(-45deg, var(--ink) 0 3px, transparent 3px 6px);
-}
+.logo { display: inline-flex; align-items: center; font-size: 25px; }
 .nav { display: flex; gap: 36px; position: absolute; left: 50%; transform: translateX(-50%); }
 .nav a { position: relative; font-size: 15px; font-weight: 500; color: var(--text-dim); transition: color .3s; }
 .nav a::after {
@@ -550,9 +554,8 @@ em { font-family: var(--serif); font-style: italic; font-weight: 400; letter-spa
 .footer ul a { transition: color .3s; }
 .footer ul a:hover { color: var(--amber); }
 .footer__word {
-  font-size: 23.5vw; font-weight: 700; letter-spacing: -0.07em; line-height: .78; text-align: center;
-  color: transparent; white-space: nowrap; user-select: none; margin-bottom: -0.04em;
-  background: linear-gradient(to bottom, rgba(255,180,0,.9), rgba(255,180,0,0) 75%); -webkit-background-clip: text; background-clip: text;
+  font-size: 22vw; line-height: .78; text-align: center; white-space: nowrap; user-select: none; margin-bottom: -0.04em;
+  -webkit-mask-image: linear-gradient(to bottom, #000 25%, transparent 85%); mask-image: linear-gradient(to bottom, #000 25%, transparent 85%);
 }
 .footer__bottom { display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; padding-block: 28px; border-top: 1px solid var(--line-dark); font-size: 14px; color: var(--text-dim); }
 .footer__bottom a:hover { color: var(--text); }
@@ -783,7 +786,6 @@ em { font-family: var(--serif); font-style: italic; font-weight: 400; letter-spa
 [data-theme="light"] .field__error { color: #c0341d; }
 
 /* Footer wordmark: deeper gradient so it reads on paper */
-[data-theme="light"] .footer__word { background-image: linear-gradient(to bottom, rgba(230,150,0,.95), rgba(255,180,0,0) 80%); }
 
 @media (max-width: 900px) {
   [data-theme="light"] .hero__shade { background: linear-gradient(to top, rgba(246,243,236,.97) 0%, rgba(246,243,236,.9) 55%, rgba(246,243,236,.55) 67%, transparent 80%); }
