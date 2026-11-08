@@ -5,7 +5,8 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger'
 gsap.registerPlugin(ScrollTrigger)
 
 // Shared state the 3D scene reads every frame.
-export const heroState = { progress: 0, mouseX: 0, mouseY: 0 }
+// textRight: where the hero headline ends on screen (px), so the 3D truck can keep clear of it.
+export const heroState = { progress: 0, mouseX: 0, mouseY: 0, textRight: 0 }
 
 export const reducedMotion =
   typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches

@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
 import gsap from 'gsap'
-import { reducedMotion } from '../lib/scroll.js'
+import { heroState, reducedMotion } from '../lib/scroll.js'
 
 // The hero line in five languages. One joke, told with each language's own idiom:
 // "Your car let you down? We won't. One call is enough."
@@ -29,7 +29,7 @@ export default function HeroHeadline({ ready, active }) {
     if (reducedMotion) { setIndex(next); return }
     busy.current = true
     gsap.to(title.current.querySelectorAll('.line > span'), {
-      yPercent: -112, duration: 0.45, stagger: 0.04, ease: 'power3.in',
+      yPercent: -135, duration: 0.45, stagger: 0.04, ease: 'power3.in',
       onComplete: () => setIndex(next),
     })
   }, [])
@@ -39,8 +39,22 @@ export default function HeroHeadline({ ready, active }) {
     if (first.current) { first.current = false; return }
     if (reducedMotion) return
     gsap.fromTo(title.current.querySelectorAll('.line > span'),
-      { yPercent: 112 },
+      { yPercent: 135 },
       { yPercent: 0, duration: 0.9, stagger: 0.07, ease: 'expo.out', onComplete: () => { busy.current = false } })
+  }, [index])
+
+  // Tell the 3D scene where the headline ends. Keep the widest line seen at this screen size.
+  useEffect(() => {
+    const measure = () => {
+      if (!title.current) return
+      const right = Math.max(...[...title.current.querySelectorAll('.line > span')].map((el) => el.getBoundingClientRect().right))
+      heroState.textRight = Math.max(heroState.textRight, right)
+    }
+    const onResize = () => { heroState.textRight = 0; measure() }
+    measure()
+    document.fonts?.ready.then(measure)
+    window.addEventListener('resize', onResize)
+    return () => window.removeEventListener('resize', onResize)
   }, [index])
 
   // Cycle on its own until the visitor picks a language.

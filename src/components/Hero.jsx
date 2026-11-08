@@ -51,7 +51,7 @@ export default function Hero({ ready }) {
     if (!ready) return
     const ctx = gsap.context(() => {
       gsap.timeline({ defaults: { ease: 'expo.out' } })
-        .from('.hero__title .line > span', { yPercent: 115, duration: 1.4, stagger: 0.09 })
+        .from('.hero__title .line > span', { yPercent: 135, duration: 1.4, stagger: 0.09 })
         .from('.hero__fade', { opacity: 0, y: 24, duration: 1.1, stagger: 0.08 }, '-=1.0')
     }, root)
     return () => ctx.revert()

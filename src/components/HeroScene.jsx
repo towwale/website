@@ -535,6 +535,14 @@ function Rig() {
   const look = useMemo(() => new THREE.Vector3(), [])
   const target = useMemo(() => new THREE.Vector3(), [])
   const start = useRef(null)
+  const shift = useRef(0)
+  const v = useMemo(() => new THREE.Vector3(), [])
+  // Corners of a box around the truck and its load.
+  const corners = useMemo(() => {
+    const pts = []
+    for (const x of [-3.85, 4.05]) for (const y of [0, 2.6]) for (const z of [-1.1, 1.1]) pts.push(new THREE.Vector3(x, y, z))
+    return pts
+  }, [])
 
   useFrame((state, dt) => {
     if (start.current === null) start.current = state.clock.elapsedTime
@@ -546,7 +554,7 @@ function Rig() {
     const portrait = aspect < 1
     // Wide, short screens (16:9 laptops) get a slightly further camera and the truck pushed right.
     const wide = Math.min(Math.max((aspect - 1.45) / 0.45, 0), 1)
-    const d = portrait ? 1.9 : 1.66 + wide * 0.26
+    const d = portrait ? 1.9 : 1.9 + wide * 0.15
 
     // Shot A: low 3/4 front. Shot B: side tracking shot, closer.
     const ax = 7.4 * d, ay = 1.7 + (portrait ? 1.4 : 0), az = 8.4 * d
@@ -563,10 +571,28 @@ function Rig() {
     target.set(x, y, z)
     camera.position.lerp(target, 1 - Math.exp(-dt * 5))
     // Frame the truck to the right of the headline on desktop, above it on phones.
-    const la = portrait ? [0.85, -1.7, 0] : [-2.45 - wide * 1.2, 0.95 + wide * 0.2, 2.1]
+    const la = portrait ? [0.85, -1.7, 0] : [-2.6 - wide * 2.3, 0.95 + wide * 0.2, 2.1]
     const lb = portrait ? [0.7, -1.1, 0] : [-0.35, 1.0, -0.3]
     look.set(lerp(la[0], lb[0], pe), lerp(la[1], lb[1], pe), lerp(la[2], lb[2], pe))
     camera.lookAt(look)
+
+    // Slide the picture right until the truck clears the headline, without pushing it off screen.
+    camera.clearViewOffset()
+    let want = 0
+    if (!portrait && heroState.textRight > 0) {
+      camera.updateMatrixWorld(true)
+      let minX = Infinity, maxX = -Infinity
+      for (const c of corners) {
+        v.copy(c).project(camera)
+        minX = Math.min(minX, v.x); maxX = Math.max(maxX, v.x)
+      }
+      const left = ((minX + 1) / 2) * size.width
+      const right = ((maxX + 1) / 2) * size.width
+      const room = Math.max(0, size.width - 24 - right)
+      want = Math.min(Math.max(0, heroState.textRight + 28 - left), room) * (1 - pe)
+    }
+    shift.current += (want - shift.current) * (1 - Math.exp(-dt * 4))
+    if (Math.abs(shift.current) > 0.5) camera.setViewOffset(size.width, size.height, -shift.current, 0, size.width, size.height)
   })
   return null
 }

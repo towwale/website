@@ -227,6 +227,8 @@ em { font-family: var(--serif); font-style: italic; font-weight: 400; letter-spa
   display: grid; gap: 28px; pointer-events: none;
 }
 .hero__content a, .hero__content button { pointer-events: auto; }
+/* On big screens the hero copy hugs the left edge instead of a centred column, leaving room for the truck. */
+.hero .wrap { max-width: none; }
 .chip {
   justify-self: start; display: inline-flex; align-items: center; gap: 10px; padding: 8px 14px;
   border-radius: 999px; background: rgba(255,255,255,.06); border: 1px solid var(--line-dark);
@@ -241,7 +243,7 @@ em { font-family: var(--serif); font-style: italic; font-weight: 400; letter-spa
 }
 /* Indian scripts: smaller, looser lines so matras are not clipped; no negative tracking. */
 .hero__title:not([data-lang="en"]) { line-height: 1.22; letter-spacing: 0; }
-.hero__title:not([data-lang="en"]) .line { padding-bottom: .1em; margin-bottom: -.1em; }
+.hero__title:not([data-lang="en"]) .line { padding-bottom: .12em; margin-bottom: -.12em; }
 .hero__title:not([data-lang="en"]) em { font-family: inherit; font-style: normal; font-weight: 600; letter-spacing: 0; }
 .hero__title[data-lang="en"] { --hs: .78; }
 .hero__title[data-lang="hi"] { --hs: .67; }
@@ -267,7 +269,8 @@ em { font-family: var(--serif); font-style: italic; font-weight: 400; letter-spa
 }
 @keyframes langBar { to { transform: scaleX(1); } }
 [data-theme="light"] .hero__langs { background: rgba(255,255,255,.6); }
-.hero__title .line { display: block; overflow: hidden; padding-bottom: 0.06em; margin-bottom: -0.06em; }
+/* Extra room below each line so descenders (g, y, p) are not clipped by the reveal mask. */
+.hero__title .line { display: block; overflow: hidden; padding: 0.04em 0.06em 0.2em 0; margin-bottom: -0.2em; }
 .hero__title .line > span { display: inline-block; }
 .hero__title em { color: var(--amber); padding-right: 0.05em; }
 .hero__row { display: flex; flex-direction: column; align-items: flex-start; gap: 28px; }
