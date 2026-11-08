@@ -255,24 +255,19 @@ em { font-family: var(--serif); font-style: italic; font-weight: 400; letter-spa
 .hero__title[data-lang="ta"] { --hs: .35; }
 .hero__title[data-lang="te"] { --hs: .53; }
 
-.hero__langs {
-  justify-self: start; display: flex; flex-wrap: wrap; gap: 2px; padding: 4px; border-radius: 999px;
-  background: rgba(255,255,255,.05); border: 1px solid var(--line-dark); backdrop-filter: blur(12px);
+.hero__picks { justify-self: start; display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.hero__picks-label { margin-right: 6px; font-size: 13px; font-weight: 600; letter-spacing: .12em; text-transform: uppercase; color: var(--text-dim); }
+.hero__picks button {
+  display: inline-flex; align-items: center; gap: 8px; min-height: 40px; padding: 0 15px; border-radius: 999px; cursor: pointer;
+  background: rgba(255,255,255,.06); border: 1px solid var(--line-dark); color: var(--text); backdrop-filter: blur(12px);
+  font: 500 14px/1 var(--sans); transition: background .3s, color .3s, border-color .3s, transform .4s var(--ease);
 }
-.hero__langs button {
-  position: relative; overflow: hidden; min-height: 38px; padding: 0 15px; border: 0; border-radius: 999px;
-  background: none; color: var(--text-dim); cursor: pointer; transition: background .3s, color .3s;
-  font: 500 14px/1 var(--sans), 'Mukta', 'Noto Sans Kannada', 'Noto Sans Tamil', 'Noto Sans Telugu', sans-serif;
-}
-.hero__langs button:hover { color: var(--text); }
-.hero__langs button.is-active { background: var(--text); color: var(--night); }
-.hero__langs button:focus-visible { outline: 2px solid var(--amber); outline-offset: 2px; }
-.hero__langs-bar {
-  position: absolute; left: 15px; right: 15px; bottom: 5px; height: 2px; border-radius: 2px;
-  background: var(--amber); transform: scaleX(0); transform-origin: left; animation: langBar linear forwards;
-}
-@keyframes langBar { to { transform: scaleX(1); } }
-[data-theme="light"] .hero__langs { background: rgba(255,255,255,.6); }
+.hero__picks button svg { color: var(--amber); transition: color .3s; }
+.hero__picks button:hover { background: var(--amber); border-color: var(--amber); color: var(--ink); transform: translateY(-2px); }
+.hero__picks button:hover svg { color: var(--ink); }
+.hero__picks button:focus-visible { outline: 2px solid var(--amber); outline-offset: 2px; }
+[data-theme="light"] .hero__picks button { background: rgba(255,255,255,.65); }
+[data-theme="light"] .hero__picks button svg { color: var(--accent-text); }
 /* Extra room below each line so descenders (g, y, p) are not clipped by the reveal mask. */
 .hero__title .line { display: block; overflow: hidden; padding: 0.04em 0.06em 0.2em 0; margin-bottom: -0.2em; }
 .hero__title .line > span { display: inline-block; }
@@ -648,7 +643,15 @@ em { font-family: var(--serif); font-style: italic; font-weight: 400; letter-spa
   .show-sm { display: inline; }
   .header { height: 70px; }
   .hero__title { --hfs: clamp(50px, 15vw, 80px); }
-  .hero__langs button { padding: 0 11px; font-size: 13px; }
+  /* One swipeable row on phones instead of several wrapped rows. */
+  .hero__picks {
+    flex-wrap: nowrap; overflow-x: auto; justify-self: stretch; scrollbar-width: none;
+    margin-inline: calc(var(--gutter) * -1); padding-inline: var(--gutter);
+    -webkit-mask-image: linear-gradient(to right, #000 85%, transparent); mask-image: linear-gradient(to right, #000 85%, transparent);
+  }
+  .hero__picks::-webkit-scrollbar { display: none; }
+  .hero__picks-label { display: none; }
+  .hero__picks button { flex: none; padding: 0 12px; font-size: 13px; min-height: 38px; }
   .hero__ctas { width: 100%; }
   .hero__ctas .magnetic, .hero__ctas .btn { width: 100%; }
   .hero__ctas .btn { height: 56px; }

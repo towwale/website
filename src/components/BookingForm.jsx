@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import Icon from './Icon.jsx'
 import { business, vehicleTypes, issueTypes } from '../config.js'
 
@@ -8,6 +8,13 @@ export default function BookingForm({ compact = false }) {
     name: '', phone: '', vehicle: vehicleTypes[0], issue: issueTypes[0], location: '', drop: '',
   })
   const [coords, setCoords] = useState(null)
+
+  // A "What happened?" pick in the hero fills in the problem.
+  useEffect(() => {
+    const onPick = (e) => { if (issueTypes.includes(e.detail)) setForm((f) => ({ ...f, issue: e.detail })) }
+    window.addEventListener('towwala:issue', onPick)
+    return () => window.removeEventListener('towwala:issue', onPick)
+  }, [])
   const [locating, setLocating] = useState(false)
   const [locError, setLocError] = useState('')
 

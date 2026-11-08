@@ -17,7 +17,6 @@ const INTERVAL = 4.2 // seconds per language
 
 export default function HeroHeadline({ ready, active }) {
   const [index, setIndex] = useState(0)
-  const [auto, setAuto] = useState(true)
   const title = useRef()
   const current = useRef(0)
   const busy = useRef(false)
@@ -57,38 +56,20 @@ export default function HeroHeadline({ ready, active }) {
     return () => window.removeEventListener('resize', onResize)
   }, [index])
 
-  // Cycle on its own until the visitor picks a language.
+  // Cycle through the languages on its own.
   useEffect(() => {
-    if (!ready || !active || !auto || reducedMotion) return
+    if (!ready || !active || reducedMotion) return
     // Skip ticks while the tab is in the background, so changes don't pile up.
     const id = setInterval(() => { if (!document.hidden) go((current.current + 1) % HEADLINES.length) }, INTERVAL * 1000)
     return () => clearInterval(id)
-  }, [ready, active, auto, go])
+  }, [ready, active, go])
 
   const h = HEADLINES[index]
   return (
-    <>
-      <div className="hero__fade hero__langs" role="group" aria-label="Headline language">
-        {HEADLINES.map((l, n) => (
-          <button
-            key={l.code}
-            lang={l.code}
-            className={n === index ? 'is-active' : ''}
-            aria-pressed={n === index}
-            onClick={() => { setAuto(false); go(n) }}
-          >
-            {l.label}
-            {n === index && auto && ready && !reducedMotion && (
-              <span key={index} className="hero__langs-bar" style={{ animationDuration: `${INTERVAL}s` }} />
-            )}
-          </button>
-        ))}
-      </div>
-      <h1 className="hero__title" ref={title} lang={h.code} data-lang={h.code}>
-        <span className="line"><span>{h.lines[0]}</span></span>
-        <span className="line"><span>{h.lines[1]}</span></span>
-        <span className="line"><span><em>{h.lines[2]}</em></span></span>
-      </h1>
-    </>
+    <h1 className="hero__title" ref={title} lang={h.code} data-lang={h.code}>
+      <span className="line"><span>{h.lines[0]}</span></span>
+      <span className="line"><span>{h.lines[1]}</span></span>
+      <span className="line"><span><em>{h.lines[2]}</em></span></span>
+    </h1>
   )
 }

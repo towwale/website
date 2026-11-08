@@ -4,6 +4,7 @@ import Icon from './Icon.jsx'
 import Magnetic from './Magnetic.jsx'
 import DispatchCard from './DispatchCard.jsx'
 import HeroHeadline from './HeroHeadline.jsx'
+import QuickPicks from './QuickPicks.jsx'
 import { business } from '../config.js'
 import { heroState } from '../lib/scroll.js'
 import { useTheme } from '../lib/theme.js'
@@ -70,6 +71,7 @@ export default function Hero({ ready }) {
         <div className="hero__shade" />
 
         <div className="wrap hero__content">
+          <QuickPicks />
           <HeroHeadline ready={ready} active={active} />
           <div className="hero__row">
             <p className="hero__fade hero__lead">
