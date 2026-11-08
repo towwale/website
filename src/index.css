@@ -233,8 +233,40 @@ em { font-family: var(--serif); font-style: italic; font-weight: 400; letter-spa
   backdrop-filter: blur(10px); font-size: 13.5px; font-weight: 500;
 }
 .hero__title {
-  font-size: clamp(56px, min(10.5vw, 16.5vh), 188px); font-weight: 600; line-height: 0.86; letter-spacing: -0.055em;
+  --hfs: clamp(56px, min(10.5vw, 16.5vh), 188px);
+  font-family: var(--sans), 'Mukta', 'Noto Sans Kannada', 'Noto Sans Tamil', 'Noto Sans Telugu', sans-serif;
+  font-size: calc(var(--hfs) * var(--hs, 1)); font-weight: 600; line-height: 0.86; letter-spacing: -0.055em;
+  /* Keep the same height whatever the language, so nothing jumps when it changes. */
+  min-height: calc(var(--hfs) * 2.62); display: grid; align-content: end;
 }
+/* Indian scripts: smaller, looser lines so matras are not clipped; no negative tracking. */
+.hero__title:not([data-lang="en"]) { line-height: 1.22; letter-spacing: 0; }
+.hero__title:not([data-lang="en"]) .line { padding-bottom: .1em; margin-bottom: -.1em; }
+.hero__title:not([data-lang="en"]) em { font-family: inherit; font-style: normal; font-weight: 600; letter-spacing: 0; }
+.hero__title[data-lang="en"] { --hs: .78; }
+.hero__title[data-lang="hi"] { --hs: .67; }
+.hero__title[data-lang="kn"] { --hs: .66; }
+.hero__title[data-lang="ta"] { --hs: .38; }
+.hero__title[data-lang="te"] { --hs: .575; }
+
+.hero__langs {
+  justify-self: start; display: flex; flex-wrap: wrap; gap: 2px; padding: 4px; border-radius: 999px;
+  background: rgba(255,255,255,.05); border: 1px solid var(--line-dark); backdrop-filter: blur(12px);
+}
+.hero__langs button {
+  position: relative; overflow: hidden; min-height: 38px; padding: 0 15px; border: 0; border-radius: 999px;
+  background: none; color: var(--text-dim); cursor: pointer; transition: background .3s, color .3s;
+  font: 500 14px/1 var(--sans), 'Mukta', 'Noto Sans Kannada', 'Noto Sans Tamil', 'Noto Sans Telugu', sans-serif;
+}
+.hero__langs button:hover { color: var(--text); }
+.hero__langs button.is-active { background: var(--text); color: var(--night); }
+.hero__langs button:focus-visible { outline: 2px solid var(--amber); outline-offset: 2px; }
+.hero__langs-bar {
+  position: absolute; left: 15px; right: 15px; bottom: 5px; height: 2px; border-radius: 2px;
+  background: var(--amber); transform: scaleX(0); transform-origin: left; animation: langBar linear forwards;
+}
+@keyframes langBar { to { transform: scaleX(1); } }
+[data-theme="light"] .hero__langs { background: rgba(255,255,255,.6); }
 .hero__title .line { display: block; overflow: hidden; padding-bottom: 0.06em; margin-bottom: -0.06em; }
 .hero__title .line > span { display: inline-block; }
 .hero__title em { color: var(--amber); padding-right: 0.05em; }
@@ -527,8 +559,6 @@ em { font-family: var(--serif); font-style: italic; font-weight: 400; letter-spa
 
 
 /* Hero extras: Hindi tagline and live dispatch card */
-.hero__tags { display: flex; align-items: center; gap: 18px; flex-wrap: wrap; }
-.hero__hindi { font-family: 'Mukta', var(--sans); font-weight: 500; font-size: 17px; color: var(--amber-2); letter-spacing: 0; }
 .hero__side {
   position: absolute; left: 0; right: 0; bottom: clamp(36px, 7vh, 80px);
   display: flex; justify-content: flex-end; pointer-events: none;
@@ -611,7 +641,8 @@ em { font-family: var(--serif); font-style: italic; font-weight: 400; letter-spa
   .hide-sm { display: none; }
   .show-sm { display: inline; }
   .header { height: 70px; }
-  .hero__title { font-size: clamp(50px, 15vw, 80px); }
+  .hero__title { --hfs: clamp(50px, 15vw, 80px); }
+  .hero__langs button { padding: 0 11px; font-size: 13px; }
   .hero__ctas { width: 100%; }
   .hero__ctas .magnetic, .hero__ctas .btn { width: 100%; }
   .hero__ctas .btn { height: 56px; }
@@ -677,7 +708,6 @@ em { font-family: var(--serif); font-style: italic; font-weight: 400; letter-spa
 /* Amber text gets a deeper shade so it stays readable on light backgrounds */
 [data-theme="light"] .h2 em,
 [data-theme="light"] .hero__title em,
-[data-theme="light"] .hero__hindi,
 [data-theme="light"] .numbers__item small,
 [data-theme="light"] .review__stars,
 [data-theme="light"] .booking-sec__list svg,

@@ -3,6 +3,7 @@ import gsap from 'gsap'
 import Icon from './Icon.jsx'
 import Magnetic from './Magnetic.jsx'
 import DispatchCard from './DispatchCard.jsx'
+import HeroHeadline from './HeroHeadline.jsx'
 import { business } from '../config.js'
 import { heroState } from '../lib/scroll.js'
 import { useTheme } from '../lib/theme.js'
@@ -69,15 +70,7 @@ export default function Hero({ ready }) {
         <div className="hero__shade" />
 
         <div className="wrap hero__content">
-          <div className="hero__fade hero__tags">
-            <p className="chip"><span className="live-dot" /> Dispatch live · 24x7 across India</p>
-            <p className="hero__hindi" lang="hi">गाड़ी रुक गई? हम आ रहे हैं।</p>
-          </div>
-          <h1 className="hero__title">
-            <span className="line"><span>Stranded?</span></span>
-            <span className="line"><span>We’re already</span></span>
-            <span className="line"><span><em>on the way.</em></span></span>
-          </h1>
+          <HeroHeadline ready={ready} active={active} />
           <div className="hero__row">
             <p className="hero__fade hero__lead">
               24x7 towing and roadside rescue across India. A fixed price before we move,
