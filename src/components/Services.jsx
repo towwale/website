@@ -1,4 +1,4 @@
-import Icon from './Icon.jsx'
+import ServiceArt from './Illustrations.jsx'
 import { services } from '../config.js'
 
 const spot = (e) => {
@@ -21,8 +21,8 @@ export default function Services() {
             <article key={s.title} className={`bento__card bento__card--${i}`} onPointerMove={spot} data-reveal>
               <div className="bento__top">
                 <span className="bento__num">{String(i + 1).padStart(2, '0')}</span>
-                <span className="bento__icon"><Icon name={s.icon} size={i < 2 ? 34 : 26} /></span>
               </div>
+              <ServiceArt name={s.icon} />
               <div>
                 <h3>{s.title}</h3>
                 <p>{s.text}</p>

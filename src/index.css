@@ -313,6 +313,43 @@ em { font-family: var(--serif); font-style: italic; font-weight: 400; letter-spa
 .bento__card p { margin-top: 10px; color: var(--text-dim); font-size: 15.5px; max-width: 30em; }
 .bento__card--0 p { font-size: 18px; max-width: 22em; }
 
+
+/* Service illustrations */
+.bento__card { --ill: rgba(244,241,234,.5); }
+[data-theme="light"] .bento__card { --ill: rgba(13,16,20,.5); }
+.bento__art { flex: 1; display: flex; align-items: center; justify-content: center; min-height: 96px; color: var(--ill); }
+.bento__art svg { width: 100%; max-width: 250px; height: auto; overflow: visible; }
+.bento__card--0 .bento__art svg { max-width: 560px; }
+.bento__card--1 .bento__art svg { max-width: 440px; }
+.bento__card { gap: 20px; }
+.ill-amber { fill: var(--amber); stroke: none; }
+.ill-amber-line { stroke: var(--amber); }
+.ill-paint { fill: rgba(255,180,0,.07); }
+.ill-glass { fill: rgba(255,255,255,.06); }
+[data-theme="light"] .ill-glass { fill: rgba(13,16,20,.06); }
+.ill-light { fill: #fff4dc; stroke: none; }
+[data-theme="light"] .ill-light { fill: var(--amber); }
+.ill-ground { stroke-dasharray: 2 7; opacity: .55; }
+.ill-motion, .ill-hiss { opacity: .45; }
+
+.ill-spin, .ill-turn, .ill-needle, .ill-drive, .ill-lift { transform-box: fill-box; transform-origin: center; transition: transform .8s var(--ease); }
+.ill-needle { transform-origin: 100% 100%; }
+.ill-blink { animation: illBlink 1.2s steps(2) infinite; }
+@keyframes illBlink { 50% { opacity: .25; } }
+.bento__card:hover .ill-spin { animation: illSpin .9s linear infinite; }
+@keyframes illSpin { to { transform: rotate(360deg); } }
+.bento__card:hover .ill-drive { transform: translateX(10px); }
+.bento__card:hover .ill-lift { transform: translateY(-6px); }
+.bento__card:hover .ill-turn { transform: rotate(-35deg); }
+.bento__card:hover .ill-needle { transform: rotate(70deg); }
+.ill-pulse { animation: illPulse 2s var(--ease) infinite; transform-box: fill-box; transform-origin: center; }
+@keyframes illPulse { 0%, 100% { opacity: 1; } 50% { opacity: .45; } }
+.ill-drip { transform-box: fill-box; animation: illDrip 1.8s ease-in infinite; }
+@keyframes illDrip { 0% { transform: translateY(-6px); opacity: 0; } 20% { opacity: 1; } 100% { transform: translateY(34px); opacity: 0; } }
+.ill-motion { transition: opacity .4s, transform .8s var(--ease); }
+.bento__card:hover .ill-motion { opacity: .8; transform: translateX(-8px); }
+@media (max-width: 600px) { .bento__art { min-height: 80px; } .bento__art svg { max-width: 220px; } }
+
 /* Process (pinned horizontal on desktop) */
 .process { background: var(--cream); color: var(--ink); overflow: hidden; }
 .process__track { display: flex; align-items: stretch; height: 100vh; height: 100svh; width: max-content; padding: 0 var(--gutter); gap: 20px; }
