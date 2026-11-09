@@ -3,11 +3,16 @@
 export const business = {
   name: 'Towwala',
   tagline: 'Gaadi ruk gayi? Hum aa rahe hain.',
-  phone: '+919876543210',          // used for tel: links (no spaces)
-  phoneDisplay: '+91 98765 43210', // shown on the page
+  // Phone number is hidden until the new number is bought. Fill both in and every
+  // call button and number on the site comes back, e.g. '+919876543210' / '+91 98765 43210'.
+  phone: '',        // used for tel: links (no spaces)
+  phoneDisplay: '', // shown on the page
   whatsapp: '919876543210',        // country code + number, no "+"
   email: 'help@towwala.in',
 }
+
+// True once a phone number is set above.
+export const hasPhone = Boolean(business.phone)
 
 export const services = [
   { icon: 'car', title: 'Car Towing', text: 'Hatchback to SUV, wheel-lift or flatbed. Safe transport to any garage or service centre.' },

@@ -1,5 +1,5 @@
 import Icon from './Icon.jsx'
-import { pricing, business } from '../config.js'
+import { pricing, business, hasPhone } from '../config.js'
 
 export default function Pricing() {
   return (
@@ -22,7 +22,7 @@ export default function Pricing() {
               <ul>
                 {p.features.map((f) => <li key={f}><Icon name="check" size={16} /> {f}</li>)}
               </ul>
-              <a href={`tel:${business.phone}`} className={`btn btn--block ${p.highlight ? 'btn--dark' : 'btn--line'}`}>
+              <a href={hasPhone ? `tel:${business.phone}` : '#book'} className={`btn btn--block ${p.highlight ? 'btn--dark' : 'btn--line'}`}>
                 Get exact quote <Icon name="arrow" size={16} />
               </a>
             </article>

@@ -95,7 +95,7 @@ function useBrand() {
       g.fillText('ROADSIDE ASSISTANCE', w - 34, h / 2 - 20)
       g.fillStyle = '#ffffff'
       g.font = '700 38px "Inter Tight", Arial, sans-serif'
-      g.fillText(business.phoneDisplay, w - 34, h / 2 + 24)
+      g.fillText(business.phoneDisplay || '24x7 TOWING', w - 34, h / 2 + 24)
     }),
     // Door lettering on the amber cab: ink "Tow", white "wala".
     door: canvasTexture(512, 128, (g, w, h) => {

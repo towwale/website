@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import Icon from './Icon.jsx'
-import { business, vehicleTypes, issueTypes } from '../config.js'
+import { business, vehicleTypes, issueTypes, hasPhone } from '../config.js'
 
 // No backend needed: the form opens WhatsApp with a ready-to-send message.
 export default function BookingForm({ compact = false }) {
@@ -117,9 +117,11 @@ export default function BookingForm({ compact = false }) {
         <Icon name="whatsapp" size={20} />
         Send on WhatsApp
       </button>
-      <p className="booking__alt">
-        In a hurry? <a href={`tel:${business.phone}`}>Call {business.phoneDisplay}</a>
-      </p>
+      {hasPhone && (
+        <p className="booking__alt">
+          In a hurry? <a href={`tel:${business.phone}`}>Call {business.phoneDisplay}</a>
+        </p>
+      )}
     </form>
   )
 }

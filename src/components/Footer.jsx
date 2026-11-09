@@ -1,7 +1,7 @@
 import Logo from './Logo.jsx'
 import Icon from './Icon.jsx'
 import Magnetic from './Magnetic.jsx'
-import { business, services } from '../config.js'
+import { business, services, hasPhone } from '../config.js'
 
 export default function Footer() {
   return (
@@ -9,7 +9,9 @@ export default function Footer() {
       <div className="wrap">
         <div className="footer__cta">
           <p className="eyebrow">Stuck right now?</p>
-          <a href={`tel:${business.phone}`} className="footer__phone" data-cursor="Call">{business.phoneDisplay}</a>
+          {hasPhone
+            ? <a href={`tel:${business.phone}`} className="footer__phone" data-cursor="Call">{business.phoneDisplay}</a>
+            : <a href="#book" className="footer__phone">Book a tow →</a>}
           <div className="footer__btns">
             <Magnetic>
               <a href={`https://wa.me/${business.whatsapp}`} className="btn btn--amber btn--lg" target="_blank" rel="noopener noreferrer">

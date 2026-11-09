@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import Icon from './Icon.jsx'
 import ThemeToggle from './ThemeToggle.jsx'
 import Logo from './Logo.jsx'
-import { business } from '../config.js'
+import { business, hasPhone } from '../config.js'
 
 const links = [
   { href: '#services', label: 'Services' },
@@ -44,9 +44,13 @@ export default function Header() {
           </nav>
           <div className="header__right">
             <ThemeToggle />
-            <a href={`tel:${business.phone}`} className="pill pill--light">
-              <span className="live-dot" /> <span className="hide-sm">{business.phoneDisplay}</span><span className="show-sm">Call</span>
-            </a>
+            {hasPhone ? (
+              <a href={`tel:${business.phone}`} className="pill pill--light">
+                <span className="live-dot" /> <span className="hide-sm">{business.phoneDisplay}</span><span className="show-sm">Call</span>
+              </a>
+            ) : (
+              <a href="#book" className="pill pill--light"><span className="live-dot" /> Book a tow</a>
+            )}
             <button className={`burger ${open ? 'is-open' : ''}`} aria-label={open ? 'Close menu' : 'Open menu'} aria-expanded={open} onClick={() => setOpen(!open)}>
               <span /><span />
             </button>
@@ -64,7 +68,7 @@ export default function Header() {
             ))}
           </nav>
           <div className="menu__foot">
-            <a href={`tel:${business.phone}`}><Icon name="phone" size={18} /> {business.phoneDisplay}</a>
+            {hasPhone && <a href={`tel:${business.phone}`}><Icon name="phone" size={18} /> {business.phoneDisplay}</a>}
             <a href={`https://wa.me/${business.whatsapp}`} target="_blank" rel="noopener noreferrer"><Icon name="whatsapp" size={18} /> WhatsApp</a>
           </div>
         </div>

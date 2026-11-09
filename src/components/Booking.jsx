@@ -1,6 +1,6 @@
 import Icon from './Icon.jsx'
 import BookingForm from './BookingForm.jsx'
-import { business } from '../config.js'
+import { business, hasPhone } from '../config.js'
 
 export default function Booking() {
   return (
@@ -16,10 +16,12 @@ export default function Booking() {
             <li><Icon name="check" size={18} /> Driver details and live tracking on WhatsApp</li>
             <li><Icon name="check" size={18} /> Drop at any garage you choose</li>
           </ul>
-          <a href={`tel:${business.phone}`} className="booking-sec__call" data-reveal>
-            <small>Prefer to talk?</small>
-            <strong>{business.phoneDisplay}</strong>
-          </a>
+          {hasPhone && (
+            <a href={`tel:${business.phone}`} className="booking-sec__call" data-reveal>
+              <small>Prefer to talk?</small>
+              <strong>{business.phoneDisplay}</strong>
+            </a>
+          )}
         </div>
         <div data-reveal><BookingForm /></div>
       </div>

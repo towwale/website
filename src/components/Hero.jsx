@@ -5,7 +5,7 @@ import Magnetic from './Magnetic.jsx'
 import DispatchCard from './DispatchCard.jsx'
 import HeroHeadline from './HeroHeadline.jsx'
 import QuickPicks from './QuickPicks.jsx'
-import { business } from '../config.js'
+import { business, hasPhone } from '../config.js'
 import { heroState } from '../lib/scroll.js'
 import { useTheme } from '../lib/theme.js'
 
@@ -79,14 +79,29 @@ export default function Hero({ ready }) {
               and a verified driver with live tracking.
             </p>
             <div className="hero__fade hero__ctas">
-              <Magnetic>
-                <a href={`tel:${business.phone}`} className="btn btn--amber btn--lg" data-cursor="Call">
-                  <Icon name="phone" size={20} /> Call {business.phoneDisplay}
-                </a>
-              </Magnetic>
-              <Magnetic>
-                <a href="#book" className="btn btn--glass btn--lg">Book online <Icon name="arrow" size={18} /></a>
-              </Magnetic>
+              {hasPhone ? (
+                <>
+                  <Magnetic>
+                    <a href={`tel:${business.phone}`} className="btn btn--amber btn--lg" data-cursor="Call">
+                      <Icon name="phone" size={20} /> Call {business.phoneDisplay}
+                    </a>
+                  </Magnetic>
+                  <Magnetic>
+                    <a href="#book" className="btn btn--glass btn--lg">Book online <Icon name="arrow" size={18} /></a>
+                  </Magnetic>
+                </>
+              ) : (
+                <>
+                  <Magnetic>
+                    <a href="#book" className="btn btn--amber btn--lg">Book a tow <Icon name="arrow" size={18} /></a>
+                  </Magnetic>
+                  <Magnetic>
+                    <a href={`https://wa.me/${business.whatsapp}`} className="btn btn--glass btn--lg" target="_blank" rel="noopener noreferrer">
+                      <Icon name="whatsapp" size={20} /> WhatsApp us
+                    </a>
+                  </Magnetic>
+                </>
+              )}
             </div>
           </div>
         </div>
