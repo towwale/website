@@ -2,7 +2,7 @@
 
 ## 3D models
 
-Both models are used under the Creative Commons Attribution 4.0 licence
+These models are used under the Creative Commons Attribution 4.0 licence
 (https://creativecommons.org/licenses/by/4.0/) and were adapted for this site.
 
 - **"Tow Truck"** by Dakta.Grower.Nzl
@@ -28,6 +28,11 @@ Both models are used under the Creative Commons Attribution 4.0 licence
 - **"Crashed Abandoned Car - Game Ready"** by Rashad Ibrahimli
   https://sketchfab.com/3d-models/crashed-abandoned-car-game-ready-66ef51a84c9843dda53bf0b4b9020011
   File: `public/models/wreck-b.glb`
+
+- **"Lightbody '90 MD Tow Truck - Low poly model"** by Daniel Zhabotinsky
+  https://sketchfab.com/3d-models/lightbody-90-md-tow-truck-low-poly-model-5cba208001c64e8ea164f89e4dde91e7
+  Changes: meshes merged, textures compressed, company name added to the doors.
+  File: `public/models/towlite.glb` (built with `tools/build-towlite.mjs`)
 
 The licence requires this credit to stay reachable from the site. It is published on
 `/licences.html` (source: `public/licences.html`), linked as "Licences" in the footer bar.

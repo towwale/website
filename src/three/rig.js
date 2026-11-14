@@ -28,6 +28,7 @@ export const rig = {
   slot: -1,    // which service is on show while the truck passes the service cards (0..8, fractional), else -1
   clock: 6,    // time of day shown on screen, in hours
   night: 0,    // kept at 0: the story stays in daylight
+  rolled: 0,   // metres the wheels have rolled: counts back when the truck reverses
 }
 
 export const SLIDE_MAX = 4.4
@@ -45,12 +46,16 @@ export const SPOT = {
   toll: 360,
   jobs: [452, 498, 544, 590, 636, 682],
   boards: [752, 800, 848, 892],
-  garage: 1092, // where the truck stops to unload
+  garage: 1092, // where the truck stops to unload, in the repair yard
 }
 const LOAD_AT = SPOT.car - CAR_START_X // truck position with the car in loading position behind it
 const OVER = 9 // metres the truck runs past its loading position before backing up to the car
 const LOADING = [2.45, 3.95]
-const UNLOADING = [8.3, 9]
+// The ending plays while the "delivered" section is pinned, which lasts until 8.86.
+const UNLOADING = [8.15, 8.42]
+// After unloading the truck drives on to the depot next door, swings out, and backs into its bay.
+const FORWARD = [8.44, 8.61]
+const REVERSE = [8.64, 8.84]
 
 // Distance against story position. The third value says how the leg ending there is driven:
 // in = pulling away from rest, out = coming to rest, both, or (default) steady.
@@ -59,8 +64,7 @@ const ROUTE = [
   [2.3, LOAD_AT + OVER, 'out'], [2.45, LOAD_AT, 'both'], [4, LOAD_AT],
   [4.3, 292, 'in'], [5, 424], [6, 722], [7, 902],
   [7.8, 1030],
-  [8.25, SPOT.garage, 'out'], [10, SPOT.garage],
-  [10.35, SPOT.garage + 46, 'in'], [11, SPOT.garage + 240],
+  [8.13, SPOT.garage, 'out'], [11, SPOT.garage],
 ]
 export function distAt(u) {
   let i = 0
@@ -85,9 +89,78 @@ function laneOf(u, d) {
   if (u < 2.3) return PULL * ease(clamp((d - PASSED) / (LOAD_AT + OVER - PASSED)))
   if (u < LOADING[0]) return PULL + (SLOW - PULL) * ease(clamp((LOAD_AT + OVER - d) / OVER))
   const back = SLOW * (1 - span(d, LOAD_AT + 2, LOAD_AT + 50))
-  const yard = YARD_Z * (span(d, SPOT.garage - 72, SPOT.garage - 4) - span(d, SPOT.garage + 4, SPOT.garage + 76))
+  const yard = YARD_Z * span(d, SPOT.garage - 72, SPOT.garage - 4)
   return back + yard
 }
+
+/* ---------- parking at the depot ---------- */
+// The depot is a row of bays along the back of the yard: trucks stand nose-out, facing the road.
+// `slot` is the empty bay the truck backs into, `z` where a parked truck's origin sits.
+export const DEPOT = { slot: SPOT.garage + 44, z: -36, bay: 4.4 }
+const BACK = 4.9 // the rear axles are this far behind the truck's origin: they are what follows the path
+const SWING = 55 * Math.PI / 180 // how far the truck has turned toward the road when it stops to reverse
+const TURN = [DEPOT.slot + 8.5, -15] // where the rear axles are at that moment
+const turnDir = [Math.cos(SWING), Math.sin(SWING)]
+// Each leg is a cubic curve of [along the road, across]: out and round, then back into the bay.
+const LEG_OUT = [
+  [SPOT.garage - BACK, YARD_Z], [SPOT.garage - BACK + 24, YARD_Z],
+  [TURN[0] - 14 * turnDir[0], TURN[1] - 14 * turnDir[1]], TURN,
+]
+const LEG_IN = [
+  TURN, [TURN[0] - 7 * turnDir[0], TURN[1] - 7 * turnDir[1]],
+  [DEPOT.slot, DEPOT.z - BACK + 13], [DEPOT.slot, DEPOT.z - BACK],
+]
+const at = [0, 0, 0, 0]
+function curve(c, t) {
+  const m = 1 - t
+  for (let i = 0; i < 2; i++) {
+    at[i] = m * m * m * c[0][i] + 3 * m * m * t * c[1][i] + 3 * m * t * t * c[2][i] + t * t * t * c[3][i]
+    at[i + 2] = 3 * (m * m * (c[1][i] - c[0][i]) + 2 * m * t * (c[2][i] - c[1][i]) + t * t * (c[3][i] - c[2][i]))
+  }
+  return at
+}
+// Length of a leg up to t, from a table measured once.
+function lengths(c) {
+  const table = [0]
+  let px = c[0][0], pz = c[0][1]
+  for (let i = 1; i <= 48; i++) {
+    const p = curve(c, i / 48)
+    table.push(table[i - 1] + Math.hypot(p[0] - px, p[1] - pz))
+    px = p[0]; pz = p[1]
+  }
+  return table
+}
+const OUT_LENGTH = lengths(LEG_OUT)
+const IN_LENGTH = lengths(LEG_IN)
+const lengthAt = (table, t) => {
+  const f = clamp(t) * 48, i = Math.min(47, Math.floor(f))
+  return table[i] + (table[i + 1] - table[i]) * (f - i)
+}
+
+// Where the truck is and which way it faces at story position u: { d, lane, heading, rolled }.
+const place = { d: 0, lane: 0, heading: 0, rolled: 0 }
+function poseAt(u) {
+  if (u <= FORWARD[0]) {
+    const d = distAt(u)
+    place.d = d; place.lane = laneOf(u, d); place.rolled = d
+    // Heading follows the path actually driven, forwards or in reverse.
+    const e = 0.004, dd = distAt(u + e) - distAt(u - e)
+    place.heading = Math.abs(dd) > 1e-4 ? Math.atan((laneOf(u + e, distAt(u + e)) - laneOf(u - e, distAt(u - e))) / dd) : 0
+    return place
+  }
+  const backing = u >= REVERSE[0]
+  const t = backing ? span(u, REVERSE[0], REVERSE[1]) : span(u, FORWARD[0], FORWARD[1])
+  const p = curve(backing ? LEG_IN : LEG_OUT, t)
+  // Driving forward the truck faces the way it moves; backing up it faces the other way.
+  const h = backing ? Math.atan2(-p[3], -p[2]) : Math.atan2(p[3], p[2])
+  place.heading = h
+  place.d = p[0] + BACK * Math.cos(h)
+  place.lane = p[1] + BACK * Math.sin(h)
+  place.rolled = SPOT.garage + (backing ? OUT_LENGTH[48] - lengthAt(IN_LENGTH, t) : lengthAt(OUT_LENGTH, t))
+  return place
+}
+// For checking the route outside the browser.
+export const poseFor = (u) => ({ ...poseAt(u) })
 
 // How far through loading (0..1) and unloading (0..1) the story is.
 export const loadingAt = (u) => clamp((u - LOADING[0]) / (LOADING[1] - LOADING[0]))
@@ -95,21 +168,20 @@ export const unloadingAt = (u) => clamp((u - UNLOADING[0]) / (UNLOADING[1] - UNL
 
 // Set every moving part for story position u.
 export function applyStory(u) {
-  const d = distAt(u)
+  const { d, lane, heading, rolled } = poseAt(u)
   const q = loadingAt(u)
   const r = unloadingAt(u)
   rig.dist = d
+  rig.lane = lane
+  rig.heading = heading
+  rig.rolled = rolled
   rig.slide = SLIDE_MAX * (span(q, 0.05, 0.24) - span(q, 0.76, 0.95) + span(r, 0.04, 0.24) - span(r, 0.78, 0.96))
   rig.tilt = TILT_MAX * (span(q, 0.13, 0.34) - span(q, 0.68, 0.84) + span(r, 0.12, 0.34) - span(r, 0.7, 0.86))
   rig.carT = span(q, 0.36, 0.66) - span(r, 0.38, 0.68)
   rig.strapped = q > 0.95 && r < 0.03
-  // Before loading the car waits at its spot on the road; after unloading it stays at the garage.
-  rig.gap = u < LOADING[0] ? LOAD_AT - d : u < UNLOADING[1] - 0.02 ? 0 : SPOT.garage - d
-  // Heading follows the path actually driven, forwards or in reverse.
-  rig.lane = laneOf(u, d)
-  const e = 0.004, dd = distAt(u + e) - distAt(u - e)
-  rig.heading = Math.abs(dd) > 1e-4 ? Math.atan((laneOf(u + e, distAt(u + e)) - laneOf(u - e, distAt(u - e))) / dd) : 0
+  // Before loading the car waits at its spot on the road; after unloading it stays in the repair yard.
   const carried = u >= LOADING[0] && u < UNLOADING[1] - 0.02
+  rig.gap = u < LOADING[0] ? LOAD_AT - d : carried ? 0 : SPOT.garage - d
   rig.carZ = u < LOADING[0] ? SLOW : carried ? rig.lane : YARD_Z
   rig.carYaw = carried ? rig.heading : 0
   rig.slot = u >= 5 && u <= 6 ? (u - 5) * 8 : -1

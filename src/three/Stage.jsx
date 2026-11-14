@@ -40,16 +40,23 @@ const WIDE = [
   // 7 questions: level, from across the street
   { p: 7.25, yaw: 184, el: 4, x0: -12, x1: 12, off: -0.18, down: 0.04, fw: 0.56, fh: 0.5 },
   { p: 7.85, yaw: 166, el: 5, x0: -10, x1: 10, off: -0.18, down: 0.04, fw: 0.56, fh: 0.5 },
-  // 8 delivered: close and low again, mirroring the loading
-  { p: 8.25, yaw: 206, el: 13, x0: -20, x1: 5, off: 0.06, down: 0.04, fw: 0.8, fh: 0.56 },
-  { p: 8.6, yaw: 238, el: 10, x0: -18, x1: -3, off: 0.08, down: 0.05, fw: 0.78, fh: 0.56 },
-  { p: 8.95, yaw: 198, el: 14, x0: -20, x1: 5, off: 0.04, down: 0.04, fw: 0.8, fh: 0.56 },
-  // 9 booking: wide, truck to the left, form on the right
-  { p: 9.3, yaw: 170, el: 17, x0: -20, x1: 8, off: -0.24, down: 0, fw: 0.46, fh: 0.5 },
-  { p: 9.95, yaw: 160, el: 17, x0: -20, x1: 8, off: -0.24, down: 0, fw: 0.46, fh: 0.5 },
-  // 10 footer: high and far as it leaves
-  { p: 10.5, yaw: 238, el: 28, x0: -30, x1: 70, off: 0, down: 0.1, fw: 0.9, fh: 0.8 },
-  { p: 11, yaw: 244, el: 34, x0: -40, x1: 80, off: 0, down: 0.1, fw: 0.9, fh: 0.8 },
+  // 8 delivered: round behind the truck as it turns into the yard, then from the road side,
+  // so the bays of damaged cars and the parked fleet are the backdrop
+  { p: 8, yaw: 236, el: 20, x0: -16, x1: 16, off: 0.06, down: 0.02, fw: 0.8, fh: 0.6 },
+  { p: 8.15, yaw: 322, el: 13, x0: -21, x1: 5, off: 0.08, down: 0.04, fw: 0.8, fh: 0.56 },
+  { p: 8.42, yaw: 336, el: 11, x0: -21, x1: 5, off: 0.08, down: 0.04, fw: 0.8, fh: 0.56 },
+  // out and round to the depot: higher, the whole row of bays in view
+  { p: 8.53, yaw: 346, el: 24, x0: -14, x1: 16, off: 0.08, down: 0.04, fw: 0.74, fh: 0.5 },
+  { p: 8.64, yaw: 352, el: 30, x0: -24, x1: 12, off: 0.08, down: 0.06, fw: 0.8, fh: 0.5 },
+  // backing into the bay: looking down the line of trucks
+  { p: 8.75, yaw: 368, el: 26, x0: -18, x1: 18, off: 0.08, down: 0.06, fw: 0.8, fh: 0.5 },
+  { p: 8.86, yaw: 372, el: 16, x0: -17, x1: 20, off: 0.17, down: 0.05, fw: 0.6, fh: 0.5 },
+  // 9 booking: the fleet lined up on the left, form on the right
+  { p: 9.05, yaw: 384, el: 15, x0: -17, x1: 20, off: -0.24, down: 0, fw: 0.5, fh: 0.5 },
+  { p: 9.95, yaw: 396, el: 17, x0: -17, x1: 20, off: -0.24, down: 0, fw: 0.5, fh: 0.5 },
+  // 10 footer: high over the whole yard
+  { p: 10.5, yaw: 380, el: 34, x0: -60, x1: 30, off: 0, down: 0.1, fw: 0.9, fh: 0.8 },
+  { p: 11, yaw: 372, el: 42, x0: -112, x1: 30, off: 0, down: 0.1, fw: 0.9, fh: 0.8 },
 ]
 // Phones are tall and narrow: same shots, centred, with the subject higher in the frame.
 const TALL = WIDE.map((k) => ({ ...k, off: 0, down: -0.14, fw: Math.min(1.1, k.fw * 1.25), fh: k.fh * 0.62 }))
@@ -84,7 +91,10 @@ function Sky({ ground }) {
 
     blend(sun.current.color, a.sun, b.sun, t)
     sun.current.intensity = mix('power')
-    sun.current.position.set(a.from[0] + (b.from[0] - a.from[0]) * t, a.from[1] + (b.from[1] - a.from[1]) * t, a.from[2] + (b.from[2] - a.from[2]) * t)
+    sun.current.position.set(a.from[0] + (b.from[0] - a.from[0]) * t, a.from[1] + (b.from[1] - a.from[1]) * t, a.from[2] + (b.from[2] - a.from[2]) * t + rig.lane)
+    // The shadow follows the truck when it leaves the road for the yard.
+    sun.current.target.position.set(0, 0, rig.lane)
+    sun.current.target.updateMatrixWorld()
     fill.current.intensity = mix('fill')
     blend(fill.current.color, a.top, b.top, t)
     blend(fill.current.groundColor, a.ground, b.ground, t)
@@ -103,7 +113,7 @@ function Sky({ ground }) {
       <directionalLight
         ref={sun} position={[-6, 16, -10]} intensity={2.6} castShadow
         shadow-mapSize={[2048, 2048]} shadow-bias={-0.0003} shadow-normalBias={0.03}
-        shadow-camera-left={-30} shadow-camera-right={30} shadow-camera-top={16} shadow-camera-bottom={-16} shadow-camera-far={90}
+        shadow-camera-left={-30} shadow-camera-right={30} shadow-camera-top={22} shadow-camera-bottom={-22} shadow-camera-far={90}
       />
     </>
   )

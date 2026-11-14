@@ -428,7 +428,7 @@
 :root { --sky-top: #ffc978; --sky-low: #ffeccc; }
 .sky, .stage { position: fixed; inset: 0; height: auto; margin: 0; }
 .seq { height: 700vh; }
-.seq--short { height: 320vh; }
+.seq--short { height: 720vh; }
 .seq--short .btn { margin-top: 20px; }
 .seq__speed { display: none; }
 
@@ -449,6 +449,8 @@
 
 /* 4 charges */
 .rates__grid { grid-template-columns: minmax(0, 1fr); gap: 20px; }
+/* The panel itself is pinned. The heading must not pin a second time inside it, or it slides over the rates as the panel leaves. */
+.rates__lead { position: static; }
 .rates .display-l { font-size: clamp(1.625rem, 2.4vw, 2.5rem); }
 .rates__intro { margin-top: 14px; font-size: 0.9375rem; }
 .rates__list li { grid-template-columns: minmax(0, 10.5rem) minmax(0, 1fr); align-items: center; gap: 16px; padding: 12px 0; }
@@ -502,6 +504,32 @@
 .footer__word, .footer__bar { background: var(--panel); }
 .footer__word { margin-top: 0; }
 .footer > .footer__bar { max-width: none; }
+
+/* Short windows: the pinned panels tighten up so the whole panel stays on screen. */
+@media (min-width: 900px) and (max-height: 800px) {
+  .statement > .wrap, .rates > .wrap, .faq > .wrap { top: calc(var(--header-h) + 10px); padding: 18px 24px; }
+  .rates__grid { gap: 10px; }
+  .rates .kicker { margin-bottom: 8px; }
+  .rates .display-l { font-size: 1.625rem; }
+  .rates__intro { margin-top: 8px; font-size: 0.875rem; line-height: 1.35; }
+  .rates__list li { padding: 7px 0; }
+  .rates__value { font-size: 1.625rem; }
+  .rates__label { font-size: 0.875rem; line-height: 1.3; }
+  .rates__list .rates__note { font-size: 0.6875rem; }
+}
+@media (min-width: 900px) and (max-height: 600px) {
+  .rates .display-l { font-size: 1.125rem; }
+  .rates__label span { display: none; }
+  .rates__list li { padding: 6px 0; }
+}
+@media (min-width: 900px) and (max-height: 680px) {
+  .faq__grid { gap: 10px; }
+  .faq .display-l { font-size: 1.25rem; }
+  .faq summary { padding: 8px 0; }
+  .faq__mark { width: 26px; height: 26px; }
+  .faq__mark::before, .faq__mark::after { left: 8px; right: 8px; top: 12px; }
+  .faq__answer { padding-bottom: 10px; font-size: 0.875rem; line-height: 1.35; }
+}
 
 @media (max-width: 899px) {
   .statement, .rates, .areas, .faq { min-height: 200vh; }

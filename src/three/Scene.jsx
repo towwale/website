@@ -4,15 +4,13 @@ import { useFrame } from '@react-three/fiber'
 import { useGLTF } from '@react-three/drei'
 import Loads, { carWeight, fadeable, setFade } from './Loads.jsx'
 import { rig, stage, carPose, bedPoint, PIVOT, CAR_START_X } from './rig.js'
+import { restOf, doorTexture, TRUCK_URL, TRUCK_SCALE } from './Fleet.jsx'
 
 // The tow truck, the car it recovers and the small props around them.
 // Models are in public/models (see CREDITS.md). World units are metres, truck facing +x.
 
-const TRUCK_URL = '/models/truck.glb'
 const CAR_URL = '/models/brezza.glb'
 
-// The truck model is authored in centimetres, facing +z, and a little oversized.
-const TRUCK_SCALE = 0.0092
 const LATERAL = new THREE.Vector3(1, 0, 0) // the truck model faces +z, so its axles lie along x
 const SPIN_MAX = 7.5 // radians a second: about 7 degrees a frame, well inside the stud spacing
 const pose = { x: 0, y: 0, rot: 0, roll: 0 }
@@ -107,25 +105,6 @@ function beamTexture() {
   return new THREE.CanvasTexture(c)
 }
 
-function doorTexture() {
-  const c = document.createElement('canvas')
-  c.width = 1024; c.height = 256
-  const t = new THREE.CanvasTexture(c)
-  t.colorSpace = THREE.SRGBColorSpace
-  t.anisotropy = 8
-  const paint = () => {
-    const g = c.getContext('2d')
-    g.clearRect(0, 0, 1024, 256)
-    g.fillStyle = '#0d0e0f'; g.textAlign = 'center'; g.textBaseline = 'middle'
-    g.font = '800 132px "Unbounded", "Arial Black", Arial, sans-serif'
-    g.fillText('TOWWALA', 512, 138)
-    t.needsUpdate = true
-  }
-  paint()
-  document.fonts?.load?.('800 80px "Unbounded"').then(paint, paint)
-  return t
-}
-
 /* ---------- truck ---------- */
 function Truck() {
   const { scene } = useGLTF(TRUCK_URL, false, true)
@@ -145,7 +124,7 @@ function Truck() {
   // Set the model up once: it is cached, and React may run this more than once.
   const parts = useMemo(() => {
     if (scene.userData.parts) return scene.userData.parts
-    scene.updateMatrixWorld(true)
+    restOf(scene) // the parked fleet is drawn from the model as it stands now, before it is taken apart
     let beacon = null
     scene.traverse((o) => {
       if (!o.isMesh) return
@@ -193,8 +172,9 @@ function Truck() {
     // Wheels turn with the distance covered: forward over time, backward as the truck reverses.
     // At road speed a true spin steps further per frame than the stud pattern repeats, which
     // reads as stutter and backward rotation. So the visible spin eases off to a steady rate.
-    const rate = (rig.roadAt - last.current) / step
-    last.current = rig.roadAt
+    const rolled = rig.rolled + rig.idle
+    const rate = (rolled - last.current) / step
+    last.current = rolled
     for (const w of parts.wheels) {
       const r = w.radius * TRUCK_SCALE
       w.pivot.rotateOnAxis(w.axis, w.sign * SPIN_MAX * Math.tanh(rate / r / SPIN_MAX) * step)

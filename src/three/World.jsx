@@ -2,7 +2,8 @@ import { useLayoutEffect, useMemo, useRef } from 'react'
 import * as THREE from 'three'
 import { useFrame } from '@react-three/fiber'
 import { useGLTF, useTexture } from '@react-three/drei'
-import { rig, SPOT, SLOW } from './rig.js'
+import { rig, SPOT, SLOW, DEPOT, YARD_Z, CAR_START_X } from './rig.js'
+import Fleet from './Fleet.jsx'
 import { WRECK_A_URL, WRECK_B_URL } from './Loads.jsx'
 
 // The highway the truck works on: a six-lane flyover, three lanes each way either side of a
@@ -159,6 +160,7 @@ export default function World() {
   // the road has come down to the ground, so nothing stands across the yard's entrance.
   const high = (x) => groundAt(x + rig.dist) < -1.2
   const piered = (x) => x + rig.dist < RAMP
+  const lamp = (x) => { const at = x + rig.dist; return at < SPOT.garage - 80 || at > SPOT.garage + 100 ? 1 : 0 }
   const seg = (z, y) => (o, x) => { o.position.set(x, y, z); o.rotation.set(0, 0, 0); o.scale.setScalar(high(x) ? 1 : 0) }
   return (
     <group>
@@ -206,15 +208,15 @@ export default function World() {
         <boxGeometry args={[5.94, 0.9, 0.6]} />
         <meshStandardMaterial map={concrete.map} normalMap={concrete.normalMap} roughness={0.92} color={PALE_CONCRETE} />
       </Row>
-      <Row count={6} spacing={32} place={(o, x) => { o.position.set(x, 5.4, MEDIAN); o.rotation.set(0, 0, 0); o.scale.set(1, 1, 1) }}>
+      <Row count={6} spacing={32} place={(o, x) => { o.position.set(x, 5.4, MEDIAN); o.rotation.set(0, 0, 0); o.scale.setScalar(lamp(x)) }}>
         <cylinderGeometry args={[0.08, 0.13, 9, 12]} />
         <meshStandardMaterial color="#8d9196" metalness={0.8} roughness={0.4} />
       </Row>
-      <Row count={6} spacing={32} place={(o, x) => { o.position.set(x, 9.8, MEDIAN); o.rotation.set(0, 0, 0); o.scale.set(1, 1, 1) }}>
+      <Row count={6} spacing={32} place={(o, x) => { o.position.set(x, 9.8, MEDIAN); o.rotation.set(0, 0, 0); o.scale.setScalar(lamp(x)) }}>
         <boxGeometry args={[0.12, 0.12, 7.4]} />
         <meshStandardMaterial color="#8d9196" metalness={0.8} roughness={0.4} />
       </Row>
-      <Row count={12} spacing={16} place={(o, x, i) => { o.position.set(x + (i % 2 ? 8 : -8) - 8, 9.72, MEDIAN + (i % 2 ? 3.5 : -3.5)); o.rotation.set(0, 0, 0); o.scale.set(1, 1, 1) }}>
+      <Row count={12} spacing={16} place={(o, x, i) => { o.position.set(x + (i % 2 ? 8 : -8) - 8, 9.72, MEDIAN + (i % 2 ? 3.5 : -3.5)); o.rotation.set(0, 0, 0); o.scale.setScalar(lamp(x + (i % 2 ? 8 : -8) - 8)) }}>
         <boxGeometry args={[0.8, 0.1, 0.36]} />
         <meshStandardMaterial color="#e9e6dc" roughness={0.5} />
       </Row>
@@ -311,7 +313,7 @@ export function Landmarks() {
   const arm = useRef()
   useFrame(() => {
     root.current.position.x = -rig.dist
-    arm.current.rotation.x = -rig.barrier * 1.35
+    arm.current.rotation.x = -rig.barrier * 1.52
   })
   return (
     <group ref={root}>
@@ -325,82 +327,116 @@ export function Landmarks() {
         <Block at={[0, 3.4, MEDIAN]} size={[0.5, 6.8, 0.5]} color="#8d9196" />
         <Block at={[0, 6.4, (LEFT + MEDIAN) / 2]} size={[1.2, 1.5, MEDIAN - LEFT + 1]} color="#16171a" />
         {[-LANE, 0, LANE].map((z) => <Block key={z} at={[-0.62, 6.4, z]} size={[0.06, 0.9, 2.4]} color="#ffc20e" />)}
-        <Block at={[2, 1.3, -LANE / 2]} size={[2.4, 2.6, 0.9]} color="#f1efe6" />
-        <Block at={[2, 1.3, LANE / 2]} size={[2.4, 2.6, 0.9]} color="#f1efe6" />
-        <group ref={arm} position={[0.4, 1.1, -LANE / 2 + 0.5]}>
-          <Block at={[0, 0, 1.4]} size={[0.12, 0.12, 2.8]} color="#c8161d" />
+        {/* Booths stand clear of the truck's lane, and the arm swings up from the near booth */}
+        <Block at={[2, 1.3, -2.15]} size={[2.4, 2.6, 0.8]} color="#f1efe6" />
+        <Block at={[2, 1.3, 2.15]} size={[2.4, 2.6, 0.8]} color="#f1efe6" />
+        <group ref={arm} position={[0.4, 1.1, -1.7]}>
+          <Block at={[0, 0, 1.6]} size={[0.12, 0.12, 3.2]} color="#c8161d" />
         </group>
       </group>
 
-      <group position-z={YARD_AT}>
-        <Yard />
-      </group>
+      <Yard />
 
     </group>
   )
 }
 
 /* ---------- the yard ---------- */
-// Where the trip ends: a recovery yard on the near side of the road. Concrete underfoot,
-// chain-link fence on three sides, rows and stacks of accident-damaged cars, barrels and
-// old tyres. The truck turns in, parks parallel to the road and unloads behind itself;
-// that strip is kept clear.
+// Where the trip ends, on the near side of the road at ground level. It is two places side by
+// side behind one chain-link fence. First the repair yard: accident-damaged cars parked in
+// marked bays, and a drop bay where the truck sets its car down. Then the depot: a row of bays
+// where the fleet stands nose-out, with one bay left empty for the truck to back into.
 const G = SPOT.garage
-// The yard is laid out in its own frame, set back from the road by YARD_AT.
-export const YARD_AT = LEFT + 2.1
-const YARD = { from: G - 68, to: G + 72, front: LEFT - 0.3 - YARD_AT, back: -36 }
+const YARD = { from: G - 68, to: G + 72, front: LEFT - 0.3, back: -45, wall: G + 20 }
 const MODULE = 1.91
+const run = (count, place) => Array.from({ length: count }, (_, i) => place(i))
 const FENCE = [
-  ...Array.from({ length: Math.ceil((YARD.to - YARD.from) / MODULE) }, (_, i) => [YARD.from + i * MODULE, 0, YARD.back, 0]),
-  ...Array.from({ length: 14 }, (_, i) => [YARD.from, 0, YARD.back + i * MODULE, -Math.PI / 2]),
-  ...Array.from({ length: 14 }, (_, i) => [YARD.to, 0, YARD.back + i * MODULE, -Math.PI / 2]),
+  ...run(Math.ceil((YARD.to - YARD.from) / MODULE), (i) => [YARD.from + i * MODULE, 0, YARD.back, 0]),
+  ...run(14, (i) => [YARD.from, 0, YARD.back + i * MODULE, -Math.PI / 2]),
+  ...run(14, (i) => [YARD.to, 0, YARD.back + i * MODULE, -Math.PI / 2]),
+  // between the repair yard and the depot
+  ...run(8, (i) => [YARD.wall, 0, YARD.back + i * MODULE, -Math.PI / 2]),
 ]
-// [along the road from the truck's parking spot, height, across, turn, scale, tipX, tipZ]
-const WRECKS_A = [
-  [-58, 0, -30, 0.08], [-46, 0, -30.4, -0.05], [-34, 0, -30, 0.12], [-22, 0, -30.3, 3.2], [-10, 0, -30, -0.1], [2, 0, -30.4, 0.06], [14, 0, -30, 3.05], [26, 0, -30.2, -0.08], [40, 0, -30, 0.1], [54, 0, -30.3, 3.2],
-  [-46, 1.36, -30.3, 0.3, 1, 0, 0.05], [2, 1.36, -30.2, 3.3, 1, 0.04, 0], [40, 1.36, -30.1, -0.2, 1, 0, -0.05],
-  [-56, 0, -21, 1.5], [44, 0, -20, 1.7], [58, 0, -21.5, 1.45],
-]
-const WRECKS_B = [
-  [-52, 0, -30.2, 1.62], [-40, 0, -30, 1.5], [-28, 0, -30.3, 1.66], [-16, 0, -30, 4.7], [-4, 0, -30.2, 1.5], [8, 0, -30, 1.64], [20, 0, -30.3, 4.75], [33, 0, -30, 1.55], [47, 0, -30.2, 1.6],
-  [-48, 0, -21.5, 0.2], [-40, 0, -20.5, 3.4], [36, 0, -21, 0.1], [50, 0, -20.6, 3.0],
-]
-const COVERED = [[-62, 0, -12, 0.1], [62, 0, -13, 3.2], [20, 0, -21, 1.6]]
-const BARRELS = [[-64, 0, -6], [-63.2, 0, -6.9], [-64.4, 0, -7.8], [-63.5, 0, -8.6], [66, 0, -27], [67, 0, -27.8], [66.2, 0, -28.8], [30, 0, -22.6], [30.9, 0, -23.2], [-32, 0, -22], [-31.2, 0, -22.9]]
-// Old tyres: heaps lying flat, a few leaning on the fence.
+
+// Repair yard: two rows of bays, cars parked square to the fence. Not machine-perfect: each
+// stands a little off line, the way cars are left by hand.
+const PITCH = 3.3
+const ROWS = [-41.7, -28.8]
+const off = (i, k) => Math.sin(i * 12.9898 + k * 78.233) * 43758.5453 % 1 // steady scatter, -1..1
+const BAYS = ROWS.flatMap((z, r) => run(24, (i) => ({ x: G - 63 + i * PITCH, z, n: r * 24 + i })))
+const COVER = new Set([5, 14, 30, 41])
+const EMPTY = new Set([9, 20, 27, 37, 45])
+const parked = BAYS.filter((b) => !COVER.has(b.n) && !EMPTY.has(b.n))
+// The two wreck models are built facing different ways: one needs a quarter turn to stand in a bay.
+const WRECKS_A = parked.filter((b) => b.n % 2 === 0).map((b) => [b.x + off(b.n, 1) * 0.12, 0, b.z + off(b.n, 2) * 0.3, Math.PI / 2 + off(b.n, 3) * 0.04])
+const WRECKS_B = parked.filter((b) => b.n % 2 === 1).map((b) => [b.x + off(b.n, 1) * 0.12, 0, b.z + off(b.n, 2) * 0.3, (b.n % 4 === 1 ? 0 : Math.PI) + off(b.n, 3) * 0.04])
+const COVERED = BAYS.filter((b) => COVER.has(b.n)).map((b) => [b.x, 0, b.z, Math.PI / 2])
+// Workshop clutter kept to the edges: drums by the side fence, tyres stacked against the dividing fence.
+const BARRELS = [[G - 66, 0, -20.5], [G - 66.1, 0, -21.4], [G - 65.2, 0, -21], [G - 66, 0, -22.4], [G + 18.6, 0, -34.2], [G + 18.7, 0, -35.1]]
 const TYRES_FLAT = [
-  ...[0, 1, 2, 3, 4].map((i) => [-36, 0.085 + i * 0.17, -24 + 0.3, i * 0.7, 1, -Math.PI / 2]),
-  ...[0, 1, 2, 3].map((i) => [-35.2, 0.085 + i * 0.17, -24.6 + 0.3, i * 1.1, 1, -Math.PI / 2]),
-  ...[0, 1, 2].map((i) => [-36.4, 0.085 + i * 0.17, -25 + 0.3, i * 0.4, 1, -Math.PI / 2]),
-  ...[0, 1, 2, 3, 4, 5].map((i) => [26, 0.085 + i * 0.17, -24 + 0.3, i * 0.9, 1, -Math.PI / 2]),
-  ...[0, 1, 2, 3].map((i) => [26.8, 0.085 + i * 0.17, -24.5 + 0.3, i * 0.5, 1, -Math.PI / 2]),
-  ...[0, 1].map((i) => [25.4, 0.085 + i * 0.17, -24.8 + 0.3, i, 1, -Math.PI / 2]),
+  ...[0, 1, 2, 3, 4, 5].map((i) => [G + 18.6, 0.085 + i * 0.17, -31.4, i * 0.9, 1, -Math.PI / 2]),
+  ...[0, 1, 2, 3, 4].map((i) => [G + 18.6, 0.085 + i * 0.17, -32.2, i * 0.5, 1, -Math.PI / 2]),
+  ...[0, 1, 2, 3].map((i) => [G + 18.6, 0.085 + i * 0.17, -33, i * 1.3, 1, -Math.PI / 2]),
+  ...[0, 1, 2, 3, 4].map((i) => [G + 17.8, 0.085 + i * 0.17, -31.8, i * 0.7, 1, -Math.PI / 2]),
+  ...[0, 1, 2].map((i) => [G + 17.8, 0.085 + i * 0.17, -32.6, i * 1.1, 1, -Math.PI / 2]),
 ]
-const TYRES_UP = [[-37.2, 0, -25.4, 1.4, 1, 0, 0.2], [27.6, 0, -25.3, 1.7, 1, 0, -0.18], [-20, 0, -35.3, 0.1, 1, 0.2, 0], [-19.2, 0, -35.3, -0.1, 1, 0.22, 0]]
-const BARRIERS = [[-66.5, 0, -3.6, 0], [-64.8, 0, -3.6, 0], [69, 0, -3.6, 0], [70.7, 0, -3.6, 0]]
-const shift = (list) => list.map(([x, ...rest]) => [G + x, ...rest])
+
+// Depot: the working truck's bay and five more of the same flatbed either side of it, then two
+// bays for the small tow trucks. Everything is parked tail to the fence, nose to the road.
+const NOSE_OUT = -Math.PI / 2
+const TRUCKS = [-3, -2, -1, 1, 2].map((i) => [DEPOT.slot + i * DEPOT.bay, DEPOT.z, NOSE_OUT])
+const SMALL_BAY = 3.6
+const SMALL_FROM = DEPOT.slot + 2.5 * DEPOT.bay
+const SMALL = [0, 1].map((i) => [SMALL_FROM + (i + 0.5) * SMALL_BAY, YARD.back + 4.2, NOSE_OUT])
+
+// Painted lines: [along the road, across, length, runs across the road?]
+const WHITE = [
+  ...ROWS.flatMap((z) => run(25, (i) => [G - 63 + (i - 0.5) * PITCH, z, 5.4, true])),
+]
+const dropX = G + CAR_START_X
+const YELLOW = [
+  ...run(7, (i) => [DEPOT.slot + (i - 3.5) * DEPOT.bay, YARD.back + 7.4, 13.6, true]),
+  ...run(2, (i) => [SMALL_FROM + (i + 1) * SMALL_BAY, YARD.back + 4, 6.8, true]),
+  // the drop bay, where the delivered car is set down
+  [dropX, YARD_Z - 1.5, 6.4, false], [dropX, YARD_Z + 1.5, 6.4, false], [dropX - 3.2, YARD_Z, 3, true], [dropX + 3.2, YARD_Z, 3, true],
+]
+
+function Lines({ places, color }) {
+  const ref = useRef()
+  useLayoutEffect(() => {
+    const at = new THREE.Object3D()
+    places.forEach(([x, z, length, across], i) => {
+      at.position.set(x, 0.012, z); at.rotation.set(-Math.PI / 2, 0, across ? Math.PI / 2 : 0); at.scale.set(length, 0.13, 1); at.updateMatrix()
+      ref.current.setMatrixAt(i, at.matrix)
+    })
+    ref.current.instanceMatrix.needsUpdate = true
+  }, [places])
+  return (
+    <instancedMesh ref={ref} args={[null, null, places.length]} frustumCulled={false} receiveShadow>
+      <planeGeometry args={[1, 1]} />
+      <meshStandardMaterial color={color} roughness={0.85} transparent opacity={0.82} depthWrite={false} polygonOffset polygonOffsetFactor={-3} />
+    </instancedMesh>
+  )
+}
 
 function Yard() {
   const length = YARD.to - YARD.from, depth = YARD.front - YARD.back
   const concrete = useSurface('concrete_floor_worn_001', length, depth, 6)
-  const places = useMemo(() => ({
-    a: shift(WRECKS_A), b: shift(WRECKS_B), covered: shift(COVERED), barrels: shift(BARRELS),
-    flat: shift(TYRES_FLAT), up: shift(TYRES_UP), barriers: shift(BARRIERS),
-  }), [])
   return (
     <group>
       <mesh position={[(YARD.from + YARD.to) / 2, 0.004, (YARD.front + YARD.back) / 2]} rotation-x={-Math.PI / 2} receiveShadow>
         <planeGeometry args={[length, depth]} />
         <meshStandardMaterial map={concrete.map} normalMap={concrete.normalMap} roughness={0.96} color={PALE_CONCRETE} envMapIntensity={0.25} />
       </mesh>
+      <Lines places={WHITE} color="#e9e6dc" />
+      <Lines places={YELLOW} color="#f2b90f" />
       <Scatter url={PROP('fence')} places={FENCE} />
-      <Scatter url={WRECK_A_URL} places={places.a} />
-      <Scatter url={WRECK_B_URL} places={places.b} />
-      <Scatter url={PROP('covered_car')} places={places.covered} />
-      <Scatter url={PROP('Barrel_01')} places={places.barrels} />
-      <Scatter url={PROP('old_tyre')} places={places.flat} />
-      <Scatter url={PROP('old_tyre')} places={places.up} />
-      <Scatter url={PROP('concrete_road_barrier')} places={places.barriers} />
+      <Scatter url={WRECK_A_URL} places={WRECKS_A} />
+      <Scatter url={WRECK_B_URL} places={WRECKS_B} />
+      <Scatter url={PROP('covered_car')} places={COVERED} />
+      <Scatter url={PROP('Barrel_01')} places={BARRELS} />
+      <Scatter url={PROP('old_tyre')} places={TYRES_FLAT} />
+      <Fleet trucks={TRUCKS} small={SMALL} />
     </group>
   )
 }
