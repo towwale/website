@@ -1,19 +1,20 @@
 import Icon from './Icon.jsx'
 import { business, hasPhone } from '../config.js'
+import { useOnScreen } from '../lib/hooks.js'
+import { whatsappUrl } from '../lib/request.jsx'
 
-// Sticky call / WhatsApp bar shown on phones only.
+// Fixed action bar on phones. It steps aside while the request form is on screen.
 export default function MobileBar() {
+  const formVisible = useOnScreen('book', false)
   return (
-    <div className="mobile-bar">
+    <div className={`mobile-bar ${formVisible ? 'is-hidden' : ''}`}>
       {hasPhone ? (
-        <a href={`tel:${business.phone}`} className="btn btn--amber">
-          <Icon name="phone" size={20} /> Call now
-        </a>
+        <a href={`tel:${business.phone}`} className="btn btn--ink"><Icon name="phone" size={16} /> Call now</a>
       ) : (
-        <a href="#book" className="btn btn--amber">Book a tow</a>
+        <a href="#book" className="btn btn--ink">Book a tow</a>
       )}
-      <a href={`https://wa.me/${business.whatsapp}`} className="btn btn--whatsapp" target="_blank" rel="noopener noreferrer">
-        <Icon name="whatsapp" size={20} /> WhatsApp
+      <a href={whatsappUrl()} className="btn btn--wa" target="_blank" rel="noopener noreferrer">
+        <Icon name="whatsapp" size={16} /> WhatsApp
       </a>
     </div>
   )

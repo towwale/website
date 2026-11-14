@@ -1,71 +1,159 @@
-// All business details live here. Edit this file to update the whole site.
+// Business details, services and rates. Everything the site says comes from this file.
 
 export const business = {
   name: 'Towwala',
   tagline: 'Gaadi ruk gayi? Hum aa rahe hain.',
-  // Phone number is hidden until the new number is bought. Fill both in and every
-  // call button and number on the site comes back, e.g. '+919876543210' / '+91 98765 43210'.
+  region: 'India',
+  // Phone stays hidden until the new number is bought. Fill both in and the call
+  // buttons appear across the site, e.g. '+919876543210' / '+91 98765 43210'.
   phone: '',        // used for tel: links (no spaces)
   phoneDisplay: '', // shown on the page
-  whatsapp: '919876543210',        // country code + number, no "+"
+  whatsapp: '919876543210', // country code + number, no "+"
   email: 'help@towwala.in',
 }
 
-// True once a phone number is set above.
 export const hasPhone = Boolean(business.phone)
 
+// Rates in rupees. The estimator and the rate table both read from here.
+export const rates = {
+  roadside: { from: 499 },
+  city: { base: 1499, includedKm: 10, perKm: 40 },
+  outstation: { perKm: 35 },
+}
+
+// `price` picks the fare hint: 'tow' (city tow rate), 'roadside' (from rate) or 'quote'.
 export const services = [
-  { icon: 'car', title: 'Car Towing', text: 'Hatchback to SUV, wheel-lift or flatbed. Safe transport to any garage or service centre.' },
-  { icon: 'flatbed', title: 'Flatbed Transport', text: 'Zero-wear transport for luxury, EV, automatic and low-clearance cars.' },
-  { icon: 'bike', title: 'Bike Towing', text: 'Scooters, commuter bikes and superbikes moved on a dedicated carrier.' },
-  { icon: 'crash', title: 'Accident Recovery', text: 'Crane-assisted recovery from ditches, ghats and highway shoulders.' },
-  { icon: 'battery', title: 'Battery Jumpstart', text: 'Dead battery in the parking? We jumpstart it on the spot.' },
-  { icon: 'tyre', title: 'Flat Tyre Help', text: 'Stepney change or puncture repair wherever you are stuck.' },
-  { icon: 'fuel', title: 'Fuel Delivery', text: 'Ran dry on the highway? We bring enough petrol or diesel to reach a pump.' },
-  { icon: 'key', title: 'Lockout Help', text: 'Keys locked inside? Damage-free unlocking by trained technicians.' },
+  {
+    id: 'flatbed',
+    group: 'tow',
+    icon: 'flatbed',
+    title: 'Flatbed Transport',
+    short: 'Safe transport for luxury, EV and low-clearance cars.',
+    body: 'The whole car sits on the truck bed, so none of its wheels touch the road. It is the right way to move electric cars, automatics, all-wheel drives and cars that sit low.',
+    points: ['Luxury and sports cars', 'Electric and hybrid cars', 'Automatic and all-wheel-drive cars', 'Showroom and workshop transfers'],
+    sends: 'Flatbed truck',
+    price: 'tow',
+  },
+  {
+    id: 'bike',
+    group: 'tow',
+    icon: 'bike',
+    title: 'Bike Towing',
+    short: 'Scooters, commuter bikes and superbikes.',
+    body: 'Your two-wheeler is loaded on a carrier and tied down for the trip. It is not ridden or dragged to the garage.',
+    points: ['Scooters', 'Commuter motorcycles', 'Superbikes and cruisers', 'Breakdowns and accident-damaged bikes'],
+    sends: 'Bike carrier',
+    price: 'quote',
+  },
+  {
+    id: 'accident',
+    group: 'tow',
+    icon: 'crane',
+    title: 'Accident Recovery',
+    short: 'Crane-assisted recovery from accidents, ditches and highways.',
+    body: 'For vehicles that cannot roll: after a collision, stuck in a ditch or off the road. A crane lifts the vehicle out and we take it to the garage or yard you choose.',
+    points: ['Collision-damaged vehicles', 'Vehicles in a ditch or off the road', 'Highway breakdowns', 'Tow to your insurer’s network garage'],
+    sends: 'Recovery truck with crane',
+    price: 'quote',
+  },
+  {
+    id: 'car',
+    group: 'tow',
+    icon: 'car',
+    title: 'Car Towing',
+    short: 'Hatchback, sedan, SUV and other vehicle towing.',
+    body: 'For breakdowns where the car has to go to a garage or service centre. We send a wheel-lift or a flatbed truck, depending on your car.',
+    points: ['Hatchbacks and sedans', 'SUVs and MUVs', 'Engine, clutch or gearbox failure', 'Drop at any garage or service centre'],
+    sends: 'Wheel-lift or flatbed truck',
+    price: 'tow',
+  },
+  {
+    id: 'battery',
+    group: 'roadside',
+    icon: 'battery',
+    title: 'Battery Jumpstart',
+    short: 'Emergency assistance for dead batteries.',
+    body: 'A technician comes to where the car is parked and jumpstarts it. If it still does not start, we can tow it to a garage.',
+    points: ['Car will not crank', 'Lights or music left on', 'Car parked for a long time'],
+    sends: 'Technician with a jumpstart kit',
+    price: 'roadside',
+  },
+  {
+    id: 'tyre',
+    group: 'roadside',
+    icon: 'tyre',
+    title: 'Flat Tyre Help',
+    short: 'Puncture repair and spare tyre replacement.',
+    body: 'We fit your spare wheel or repair the puncture where you are stopped, so you can drive on.',
+    points: ['Spare wheel fitting', 'Puncture repair', 'Tow to a tyre shop if the tyre is beyond repair'],
+    sends: 'Technician for the tyre',
+    price: 'roadside',
+  },
+  {
+    id: 'fuel',
+    group: 'roadside',
+    icon: 'fuel',
+    title: 'Fuel Delivery',
+    short: 'Emergency petrol or diesel delivery.',
+    body: 'Ran out of fuel? We bring enough petrol or diesel to get you to the next pump. Fuel is charged at actuals.',
+    points: ['Petrol', 'Diesel', 'City roads and highways'],
+    sends: 'Petrol or diesel, brought to you',
+    price: 'roadside',
+  },
+  {
+    id: 'key',
+    group: 'roadside',
+    icon: 'key',
+    title: 'Lockout Help',
+    short: 'Damage-free car unlocking when keys are locked inside.',
+    body: 'Keys locked inside the car? A trained technician opens it without damaging the door, lock or glass.',
+    points: ['Keys left inside the car', 'Keys locked in the boot'],
+    sends: 'Technician to unlock the car',
+    price: 'roadside',
+  },
 ]
 
-export const pricing = [
-  { name: 'Roadside Fix', price: '499', unit: 'onwards', features: ['Jumpstart, tyre change or fuel', 'Technician at your location', 'Fuel charged at actuals'], highlight: false },
-  { name: 'City Tow', price: '1,499', unit: 'up to 10 km', features: ['Wheel-lift or flatbed', '₹40 per extra km', 'Drop at any garage'], highlight: true },
-  { name: 'Highway & Outstation', price: '35', unit: 'per km', features: ['Long-distance flatbed', 'Toll at actuals', 'Live driver tracking'], highlight: false },
+export const serviceGroups = [
+  { id: 'tow', label: 'Towing and recovery' },
+  { id: 'roadside', label: 'Roadside help' },
 ]
 
-// The "how it works" steps.
+export const vehicles = [
+  { id: 'car', label: 'Car', full: 'Car (hatchback or sedan)' },
+  { id: 'suv', label: 'SUV', full: 'SUV / MUV' },
+  { id: 'luxury', label: 'Luxury / EV', full: 'Luxury car / EV' },
+  { id: 'bike', label: 'Bike', full: 'Two-wheeler' },
+  { id: 'commercial', label: 'Commercial', full: 'Commercial vehicle' },
+]
+
+// The story told beside the 3D truck as the page scrolls.
+export const loading = [
+  { title: 'Send your location', text: 'Message us on WhatsApp from where you have stopped. One tap shares your GPS pin, and we confirm the price before a truck is sent.' },
+  { title: 'The bed slides back', text: 'The flatbed slides off the back of the truck and tilts until its tail rests on the road.' },
+  { title: 'Your car is winched on', text: 'A steel cable pulls the car up the bed. Nobody drives it and none of its wheels are dragged.' },
+  { title: 'Levelled and strapped', text: 'The bed comes back level and locks. All four wheels are strapped down.' },
+  { title: 'On the way', text: 'Your car rides on the bed to the garage or service centre you choose.' },
+]
+
+
 export const steps = [
-  { time: '01', title: 'You call', text: 'A real person picks up, not an IVR menu. Share your location on WhatsApp in one tap.' },
-  { time: '02', title: 'Fixed quote', text: 'You hear the full price before anything moves. That is the price you pay. No surprises on arrival.' },
-  { time: '03', title: 'Truck dispatched', text: 'The nearest available verified truck is assigned. You get the driver’s name, photo and a live tracking link.' },
-  { time: '04', title: 'We’re with you', text: 'Your vehicle is loaded safely and driven to the garage of your choice.' },
+  { title: 'Send your location', text: 'Message us on WhatsApp with where you are and what has happened. One tap shares your GPS pin.' },
+  { title: 'Get the price', text: 'We tell you the full fare before a truck is sent. That is the amount you pay.' },
+  { title: 'Truck on the way', text: 'The nearest available truck is assigned. You get the driver’s name and a live tracking link.' },
+  { title: 'Dropped at your garage', text: 'Your vehicle is loaded, secured and taken to the garage or service centre you choose.' },
 ]
 
-export const stats = [
-  { value: 24, suffix: '/7', label: 'Always on, including Diwali night' },
-  { value: 8, suffix: ' services', label: 'From a jumpstart to crane recovery' },
-  { value: 15, suffix: '+', label: 'Cities and expressways covered' },
-  { value: 1, suffix: ' call', label: 'Is all it takes to get help' },
-]
-
+// Cities and highways shown under "Where we work".
 export const cities = [
-  'Bengaluru', 'Mumbai', 'Delhi NCR', 'Pune', 'Hyderabad', 'Chennai',
-  'Ahmedabad', 'Kolkata', 'Jaipur', 'Lucknow', 'Chandigarh', 'Indore',
+  'Bengaluru', 'Mumbai', 'Delhi NCR', 'Pune', 'Hyderabad', 'Chennai', 'Ahmedabad', 'Kolkata',
+  'Jaipur', 'Lucknow', 'Chandigarh', 'Indore',
   'Mumbai–Pune Expressway', 'NH-48', 'Yamuna Expressway',
 ]
 
-// Sample reviews — replace with genuine customer reviews before going live.
-export const testimonials = [
-  { name: 'Rohit S.', city: 'Pune', text: 'Car broke down on the expressway at 11 pm. The driver kept me updated the whole way and the price was exactly what they quoted.' },
-  { name: 'Ananya K.', city: 'Bengaluru', text: 'They moved my EV on a flatbed to the service centre. Very careful driver, kept me updated on WhatsApp.' },
-  { name: 'Imran M.', city: 'Delhi NCR', text: 'Dead battery in office parking. Jumpstarted on the spot. Saved my day.' },
-]
-
 export const faqs = [
-  { q: 'How long will the truck take?', a: 'It depends on where you are, traffic and which truck is free nearest to you. We give you an honest estimate on the call before you confirm, and share live tracking so you always know where the driver is.' },
-  { q: 'Do you work at night and on holidays?', a: 'Yes. We run 24 hours a day, 7 days a week, including Diwali, Holi and every other holiday.' },
-  { q: 'How is the towing charge calculated?', a: 'A fixed base fare covers the first 10 km, then a per-km rate. You get the full price on the phone before we send a truck.' },
-  { q: 'Is my car safe during towing?', a: 'We use flatbeds for automatic, EV and luxury cars, soft straps and wheel locks, and every trip is tracked.' },
-  { q: 'Can you work with my insurance?', a: 'Yes. We provide GST invoices and photos for insurance claims, and can tow directly to your insurer’s network garage.' },
+  { q: 'How long will the truck take?', a: 'It depends on where you are, the traffic and which truck is free nearest to you. We give you an honest estimate before you confirm, and share live tracking so you can see where the driver is.' },
+  { q: 'Do you work at night and on holidays?', a: 'Yes. We are open 24 hours a day, 7 days a week, including Diwali, Holi and every other holiday.' },
+  { q: 'How is the towing charge calculated?', a: 'A fixed base fare covers the first 10 km. After that there is a per-km rate. You get the full price before we send a truck.' },
+  { q: 'Is my car safe during towing?', a: 'Automatic, electric and luxury cars go on a flatbed. Vehicles are secured with soft straps and wheel locks, and every trip is tracked.' },
+  { q: 'Can you work with my insurance?', a: 'Yes. We give you a GST invoice and photos for your claim, and can tow straight to your insurer’s network garage.' },
 ]
-
-export const vehicleTypes = ['Car (Hatchback/Sedan)', 'SUV / MUV', 'Luxury / EV', 'Two-wheeler', 'Commercial vehicle']
-export const issueTypes = ['Needs towing', 'Accident', 'Battery dead', 'Flat tyre', 'Out of fuel', 'Locked out', 'Other']

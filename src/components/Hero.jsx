@@ -1,122 +1,73 @@
-import { Component, Suspense, lazy, useEffect, useRef, useState } from 'react'
-import gsap from 'gsap'
 import Icon from './Icon.jsx'
 import Magnetic from './Magnetic.jsx'
-import DispatchCard from './DispatchCard.jsx'
-import HeroHeadline from './HeroHeadline.jsx'
-import QuickPicks from './QuickPicks.jsx'
-import { business, hasPhone } from '../config.js'
-import { heroState } from '../lib/scroll.js'
-import { useTheme } from '../lib/theme.js'
+import { business, services } from '../config.js'
+import { useRequest } from '../lib/request.jsx'
+import { stage } from '../three/rig.js'
 
-const HeroScene = lazy(() => import('./HeroScene.jsx'))
-
-class SceneBoundary extends Component {
-  state = { failed: false }
-  static getDerivedStateFromError() { return { failed: true } }
-  render() { return this.state.failed ? <div className="hero__fallback" /> : this.props.children }
+// Drag anywhere in the hero to walk round the truck. Mouse only, so a finger still scrolls.
+const spin = {
+  onPointerDown(e) {
+    if (e.pointerType !== 'mouse' || e.button !== 0 || e.target.closest('a, button, p')) return
+    stage.held = true
+    spin.x = e.clientX
+    e.currentTarget.setPointerCapture(e.pointerId)
+    e.currentTarget.classList.add('is-spinning')
+  },
+  onPointerMove(e) {
+    if (!stage.held) return
+    stage.spinTo += (e.clientX - spin.x) * 0.32
+    spin.x = e.clientX
+  },
+  onPointerUp(e) {
+    if (!stage.held) return
+    stage.held = false
+    e.currentTarget.classList.remove('is-spinning')
+  },
 }
 
+// The headline sits behind the 3D truck; the copy and buttons sit in front of it.
 export default function Hero({ ready }) {
-  const root = useRef()
-  const [active, setActive] = useState(true)
-  const day = useTheme() === 'light'
-
-  // Pause the 3D render loop when the hero is off screen.
-  useEffect(() => {
-    const io = new IntersectionObserver(([e]) => setActive(e.isIntersecting), { rootMargin: '100px' })
-    io.observe(root.current)
-    return () => io.disconnect()
-  }, [])
-
-  // Scroll progress drives the camera, and the copy hands over to the second caption.
-  useEffect(() => {
-    const ctx = gsap.context(() => {
-      gsap.timeline({
-        scrollTrigger: {
-          trigger: root.current, start: 'top top', end: 'bottom bottom', scrub: true,
-          onUpdate: (self) => { heroState.progress = self.progress },
-        },
-      })
-        .to('.hero__content', { opacity: 0, y: -80, ease: 'none', duration: 0.35 }, 0)
-        .to('.hero__scroll', { opacity: 0, duration: 0.1 }, 0)
-        .to('.dispatch', { opacity: 0, y: -40, ease: 'none', duration: 0.3 }, 0)
-        .fromTo('.hero__caption', { opacity: 0, y: 60 }, { opacity: 1, y: 0, ease: 'none', duration: 0.3 }, 0.45)
-        .to('.hero__caption', { opacity: 0, y: -40, ease: 'none', duration: 0.15 }, 0.85)
-    }, root)
-    return () => ctx.revert()
-  }, [])
-
-  // Intro once the preloader is done.
-  useEffect(() => {
-    if (!ready) return
-    const ctx = gsap.context(() => {
-      gsap.timeline({ defaults: { ease: 'expo.out' } })
-        .from('.hero__title .line > span', { yPercent: 135, duration: 1.4, stagger: 0.09 })
-        .from('.hero__fade', { opacity: 0, y: 24, duration: 1.1, stagger: 0.08 }, '-=1.0')
-    }, root)
-    return () => ctx.revert()
-  }, [ready])
-
+  const { request } = useRequest()
   return (
-    <section className="hero" id="top" ref={root}>
-      <div className="hero__sticky">
-        <div className="hero__canvas">
-          <SceneBoundary>
-            <Suspense fallback={null}>
-              <HeroScene active={active} day={day} />
-            </Suspense>
-          </SceneBoundary>
-        </div>
-        <div className="hero__shade" />
+    <section
+      className={`hero ${ready ? 'is-in' : ''}`} id="top" data-cursor="Drag to spin" data-cursor-area=""
+      onPointerDown={spin.onPointerDown} onPointerMove={spin.onPointerMove} onPointerUp={spin.onPointerUp} onPointerCancel={spin.onPointerUp}
+    >
+      <h1 className="hero__title lines">
+        <span className="hero__line">
+          <span className="lines__row"><span className="lines__inner" style={{ '--i': 0 }}>24-hour</span></span>{' '}
+          <span className="lines__row"><span className="lines__inner" style={{ '--i': 1 }}>towing</span></span>
+        </span>{' '}
+        <span className="hero__line hero__line--b">
+          <span className="lines__row"><span className="lines__inner" style={{ '--i': 2 }}>across</span></span>{' '}
+          <span className="lines__row"><span className="lines__inner" style={{ '--i': 3 }}><span className="plate">{business.region}</span></span></span>
+        </span>
+      </h1>
 
-        <div className="wrap hero__content">
-          <QuickPicks />
-          <HeroHeadline ready={ready} active={active} />
-          <div className="hero__row">
-            <p className="hero__fade hero__lead">
-              24x7 towing and roadside rescue across India. A fixed price before we move
-              and a verified driver with live tracking.
-            </p>
-            <div className="hero__fade hero__ctas">
-              {hasPhone ? (
-                <>
-                  <Magnetic>
-                    <a href={`tel:${business.phone}`} className="btn btn--amber btn--lg" data-cursor="Call">
-                      <Icon name="phone" size={20} /> Call {business.phoneDisplay}
-                    </a>
-                  </Magnetic>
-                  <Magnetic>
-                    <a href="#book" className="btn btn--glass btn--lg">Book online <Icon name="arrow" size={18} /></a>
-                  </Magnetic>
-                </>
-              ) : (
-                <>
-                  <Magnetic>
-                    <a href="#book" className="btn btn--amber btn--lg">Book a tow <Icon name="arrow" size={18} /></a>
-                  </Magnetic>
-                  <Magnetic>
-                    <a href={`https://wa.me/${business.whatsapp}`} className="btn btn--glass btn--lg" target="_blank" rel="noopener noreferrer">
-                      <Icon name="whatsapp" size={20} /> WhatsApp us
-                    </a>
-                  </Magnetic>
-                </>
-              )}
-            </div>
+      <div className="wrap hero__foot">
+        <div className="hero__copy">
+          <p className="hero__lead">
+            Flatbed transport, car and bike towing, accident recovery and roadside help.
+            Send your location on WhatsApp and we confirm the price before the truck leaves.
+          </p>
+          <div className="hero__actions">
+            <Magnetic><a href="#book" className="btn btn--ink btn--lg" data-cursor="Book">Book a tow <Icon name="arrow" size={16} /></a></Magnetic>
+            <Magnetic><a href="#how-it-loads" className="btn btn--line btn--lg">Watch a tow</a></Magnetic>
           </div>
         </div>
 
-        <div className="wrap hero__side">
-          <DispatchCard />
-        </div>
-
-        <div className="wrap hero__caption">
-          <p className="eyebrow">The fleet</p>
-          <p className="hero__caption-text">Flatbeds for EVs and luxury cars. Wheel-lifts for the city. Cranes for the ghats.</p>
-        </div>
-
-        <div className="hero__scroll hero__fade" aria-hidden="true"><span /> Scroll</div>
+        <ul className="hero__services mono" aria-label="Services">
+          {services.map((s, i) => (
+            <li key={s.id}>
+              <button type="button" onClick={() => request(s.id)}>
+                <span>{String(i + 1).padStart(2, '0')}</span>{s.title}<Icon name="arrow" size={12} />
+              </button>
+            </li>
+          ))}
+        </ul>
       </div>
+
+      <p className="hero__scroll mono" aria-hidden="true"><span /> Scroll to watch</p>
     </section>
   )
 }

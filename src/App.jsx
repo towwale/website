@@ -1,70 +1,51 @@
-import { useCallback, useEffect, useState } from 'react'
-import gsap from 'gsap'
-import { ScrollTrigger } from 'gsap/ScrollTrigger'
-import { initScroll, getLenis } from './lib/scroll.js'
+import { useCallback, useState } from 'react'
 import Preloader from './components/Preloader.jsx'
 import Cursor from './components/Cursor.jsx'
 import Header from './components/Header.jsx'
+import StageMount from './components/StageMount.jsx'
 import Hero from './components/Hero.jsx'
-import Marquee from './components/Marquee.jsx'
-import Promises from './components/Promises.jsx'
+import Sequence from './components/Sequence.jsx'
 import Statement from './components/Statement.jsx'
+import Delivered from './components/Delivered.jsx'
+import Rates from './components/Rates.jsx'
 import Services from './components/Services.jsx'
-import Process from './components/Process.jsx'
-import Numbers from './components/Numbers.jsx'
-import Pricing from './components/Pricing.jsx'
-import Reviews from './components/Reviews.jsx'
 import Booking from './components/Booking.jsx'
-import FAQ from './components/FAQ.jsx'
+import Areas from './components/Areas.jsx'
+import Faq from './components/Faq.jsx'
 import Footer from './components/Footer.jsx'
 import MobileBar from './components/MobileBar.jsx'
+import { RequestProvider } from './lib/request.jsx'
+import { useReveal } from './lib/hooks.js'
 
 export default function App() {
   const [ready, setReady] = useState(false)
   const onDone = useCallback(() => setReady(true), [])
 
-  useEffect(() => {
-    const lenis = initScroll()
-    lenis?.stop()
-  }, [])
-
-  useEffect(() => {
-    if (!ready) return
-    getLenis()?.start()
-    // Fade-up reveal for anything marked data-reveal.
-    const ctx = gsap.context(() => {
-      gsap.utils.toArray('[data-reveal]').forEach((el) => {
-        gsap.from(el, {
-          y: 48, opacity: 0, duration: 1.2, ease: 'expo.out',
-          scrollTrigger: { trigger: el, start: 'top 90%', once: true },
-        })
-      })
-    })
-    const t = setTimeout(() => ScrollTrigger.refresh(), 300)
-    return () => { clearTimeout(t); ctx.revert() }
-  }, [ready])
+  useReveal(ready)
 
   return (
-    <>
+    <RequestProvider>
+      <a className="skip" href="#main">Skip to content</a>
       <Preloader onDone={onDone} />
       <Cursor />
-      <div className="grain" aria-hidden="true" />
       <Header />
-      <main>
-        <Hero ready={ready} />
-        <Marquee />
-        <Promises />
-        <Statement />
-        <Services />
-        <Process />
-        <Numbers />
-        <Pricing />
-        <Reviews />
-        <Booking />
-        <FAQ />
+      <main id="main">
+        {/* The 3D scene stays fixed behind every section; scrolling drives the truck along its route. */}
+        <div className="journey">
+          <StageMount />
+          <Hero ready={ready} />
+          <Statement />
+          <Sequence />
+          <Rates />
+          <Services />
+          <Areas />
+          <Faq />
+          <Delivered />
+          <Booking />
+        </div>
       </main>
       <Footer />
       <MobileBar />
-    </>
+    </RequestProvider>
   )
 }
